@@ -59,3 +59,9 @@
 
         window.addEventListener('click', handleMouse);
         animate();
+
+// TODO: make class
+
+class Particle {
+        constructor() {}
+}
