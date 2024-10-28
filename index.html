@@ -51,6 +51,8 @@
 
         class Canvas {
             canvas = null;
+            elements = [];
+            globalListeners = [];
 
             constructor(id, params) {
                 if(!id) {
@@ -58,6 +60,14 @@
                 } else {
                     this.#getCanvas(id, params);
                 }
+            }
+
+            addItem(item) {
+                this.elements.push(item);
+            }
+
+            removeItem(item) {
+                this.elements = this.elements.filter(el => el !== item);
             }
 
             #createCanvas(params) {
