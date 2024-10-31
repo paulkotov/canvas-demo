@@ -30,14 +30,15 @@
         }
     </style>
     <div class="controls__container">
-        <form name="controls__form">
-            <input type="number" name="branches" placeholder="branches">
-            <input type="number" name="spread" placeholder="spread">
-            <input type="number" name="sides" placeholder="sides">
+        <form name="controls__form" class="controls__form">
+            <input class="controls__form_input" type="number" name="branches" placeholder="branches">
+            <input class="controls__form_input" type="number" name="spread" placeholder="spread">
+            <input class="controls__form_input" type="number" name="sides" placeholder="sides">
         </form>
         
     </div>
     <canvas id="canvas"></canvas>
+    <canvas id="animated-canvas"></canvas>
     <script>
         const get = (obj, key, defaultValue) => {
             if (!obj) {
@@ -50,37 +51,131 @@
         };
 
         class Canvas {
-            canvas = null;
-
-            constructor(id, params) {
-                if(!id) {
-                    this.#createCanvas(params)
+            constructor(id, params = {}) {
+                if (!id) {
+                    this.#createCanvas(params);
                 } else {
                     this.#getCanvas(id, params);
                 }
+                this.elements = [];
             }
 
             #createCanvas(params) {
                 const canvas = document.createElement('canvas');
                 document.body.appendChild(canvas);
-                // const ctx = canvas.getContext('2d');
                 canvas.width = get(params, 'width', window.innerWidth);
                 canvas.height = get(params, 'height', window.innerHeight);
                 this.canvas = canvas;
-                return this;
+                this.context = canvas.getContext('2d');
             }
 
             #getCanvas(id, params) {
-                const elem = document.getElementById(id);
-                if (elem instanceof HTMLCanvasElement) {
-                    elem.width = get(params, 'width', window.innerWidth);
-                    elem.height = get(params, 'height', window.innerHeight);
-
-                    this.canvas = elem;
-                    return this;
+                const canvas = document.getElementById(id);
+                if (!canvas) {
+                    this.#createCanvas(params);
                 } else {
-                    throw Error(`Canvas with id=${id} was not found!`)
+                    this.canvas = canvas;
+                    this.context = canvas.getContext('2d');
                 }
+            }
+
+            createElement(type, params) {
+                let element;
+                switch (type) {
+                    case 'line':
+                        element = new Line(params);
+                        break;
+                    case 'circle':
+                        element = new Circle(params);
+                        break;
+                    case 'arc':
+                        element = new Arc(params);
+                        break;
+                    default:
+                        throw new Error('Unsupported element type');
+                }
+                this.elements.push(element);
+                return element;
+            }
+
+            removeElement(element) {
+                this.elements = this.elements.filter(el => el !== element);
+            }
+
+            getElementById(id) {
+                return this.elements.find(el => el.id === id);
+            }
+
+            appendChild(element) {
+                this.elements.push(element);
+                element.draw(this.context);
+            }
+
+            draw() {
+                this.context.clearRect(0, 0, this.canvas.width, this.canvas.height);
+                this.elements.forEach(element => element.draw(this.context));
+            }
+        }
+
+        class Line {
+            constructor({ startX, startY, endX, endY, color = 'black', lineWidth = 1 }) {
+                this.startX = startX;
+                this.startY = startY;
+                this.endX = endX;
+                this.endY = endY;
+                this.color = color;
+                this.lineWidth = lineWidth;
+            }
+
+            draw(context) {
+                context.beginPath();
+                context.moveTo(this.startX, this.startY);
+                context.lineTo(this.endX, this.endY);
+                context.strokeStyle = this.color;
+                context.lineWidth = this.lineWidth;
+                context.stroke();
+            }
+        }
+
+        class Circle {
+            constructor({ centerX, centerY, radius, color = 'black', fill = false }) {
+                this.centerX = centerX;
+                this.centerY = centerY;
+                this.radius = radius;
+                this.color = color;
+                this.fill = fill;
+            }
+
+            draw(context) {
+                context.beginPath();
+                context.arc(this.centerX, this.centerY, this.radius, 0, 2 * Math.PI);
+                context.strokeStyle = this.color;
+                if (this.fill) {
+                    context.fillStyle = this.color;
+                    context.fill();
+                } else {
+                    context.stroke();
+                }
+            }
+        }
+
+        class Arc {
+            constructor({ centerX, centerY, radius, startAngle, endAngle, color = 'black', lineWidth = 1 }) {
+                this.centerX = centerX;
+                this.centerY = centerY;
+                this.radius = radius;
+                this.startAngle = startAngle;
+                this.endAngle = endAngle;
+                this.color = color;
+                this.lineWidth = lineWidth;
+            }
+
+            draw(context) {
+                context.beginPath();
+                context.arc(this.centerX, this.centerY, this.radius, this.startAngle, this.endAngle);
+                context.strokeStyle = this.color;
+                context.lineWidth = this.lineWidth;
+                context.stroke();
             }
         }
 
@@ -159,6 +254,115 @@
             new Fractal(canvas.canvas).drawFractal({x: 200, y: 200}, 0.25);
             new Fractal(canvas.canvas, {size: 200, sides: 6, maxLevel: 3, color: 'hsl(500, 100%, 50%)'}).drawFractal({x: 600, y: 500}, 0.25, 0.2);
             });
+
+        class CanvasAnimation {
+            listeners = [];
+            constructor() {}
+
+            addListener(listener) {
+                this.listeners.push(listener);
+            }
+            configure(opts) {
+
+            }
+
+            animate(run) {
+                // updateParticles();
+                run();
+                requestAnimationFrame(this.animate);
+            }
+        }
+
+        class ParticlesAnimation extends CanvasAnimation {
+            particlesArray = [];
+            mouse = {
+                x: null,
+                y: null
+            };
+
+            constructor(canvasRef, params) {
+                super();
+                this.canvas = canvasRef;
+                this.context = canvasRef.getContext('2d');
+                this.width = canvasRef.width;
+                this.height = canvasRef.height;
+                this.particles = [];
+                this.#createParticles(params);
+            }
+
+            #createParticles(params) {
+                const count = get(params, 'count', 100);
+                for (let i = 0; i < count; i++) {
+                    this.particles.push({
+                        x: Math.random() * this.width,
+                        y: Math.random() * this.height,
+                        size: Math.random() * 5 + 1,
+                        speedX: Math.random() * 3 - 1.5,
+                        speedY: Math.random() * 3 - 1.5,
+                        color: 'hsl(200, 100%, 50%)'
+                    });
+                }
+            }
+
+            #updateParticles() {
+                this.particles.forEach(particle => {
+                    particle.x += particle.speedX;
+                    particle.y += particle.speedY;
+                    if (particle.x < 0) {
+                        particle.x = this.width;
+                    }
+                    if (particle.x > this.width) {
+                        particle.x = 0;
+                    }
+                    if (particle.y < 0) {
+                        particle.y = this.height;
+                    }
+                    if (particle.y > this.height) {
+                        particle.y = 0;
+                    }
+                });
+            }
+
+            #drawParticles() {
+                this.context.clearRect(0, 0, this.width, this.height);
+                this.particles.forEach(particle => {
+                    this.context.fillStyle = particle.color;
+                    this.context.beginPath();
+                    this.context.arc(particle.x, particle.y, particle.size, 0, Math.PI * 2);
+                    this.context.fill();
+                });
+            }
+
+            #connectParticles() {
+                for (let a = 0; a < this.particles.length; a++) {
+                    for (let b = a; b < this.particles.length; b++) {
+                        const dx = this.particles[a].x - this.particles[b].x;
+                        const dy = this.particles[a].y - this.particles[b].y;
+                        const distance = Math.sqrt(dx * dx + dy * dy);
+                        if (distance < 100) {
+                            this.context.strokeStyle = this.particles[a].color;
+                            this.context.lineWidth = 1;
+                            this.context.beginPath();
+                            this.context.moveTo(this.particles[a].x, this.particles[a].y);
+                            this.context.lineTo(this.particles[b].x, this.particles[b].y);
+                            this.context.stroke();
+                        }
+                    }
+                }
+            }
+
+            #animateParticles() {
+                this.#updateParticles();
+                this.#drawParticles();
+                this.#connectParticles();
+                requestAnimationFrame(this.#animateParticles.bind(this));
+            }
+
+            start() {
+                this.#animateParticles();
+            }
+        }
+
     </script>
 </body>
 </html>
