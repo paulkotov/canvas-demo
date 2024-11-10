@@ -23,3 +23,69 @@ class Text {
         context.fillText(this.content, this.x, this.y);
     }
 }
+
+class Line {
+    constructor({ startX, startY, endX, endY, color = 'black', lineWidth = 1 }) {
+        this.startX = startX;
+        this.startY = startY;
+        this.endX = endX;
+        this.endY = endY;
+        this.color = color;
+        this.lineWidth = lineWidth;
+    }
+
+    setLineWidth(width) {
+        this.lineWidth = width;
+    }
+
+    draw(context) {
+        context.beginPath();
+        context.moveTo(this.startX, this.startY);
+        context.lineTo(this.endX, this.endY);
+        context.strokeStyle = this.color;
+        context.lineWidth = this.lineWidth;
+        context.stroke();
+    }
+}
+
+class Circle {
+    constructor({ centerX, centerY, radius, color = 'black', fill = false }) {
+        this.centerX = centerX;
+        this.centerY = centerY;
+        this.radius = radius;
+        this.color = color;
+        this.fill = fill;
+    }
+
+    draw(context) {
+        context.beginPath();
+        context.arc(this.centerX, this.centerY, this.radius, 0, 2 * Math.PI);
+        context.strokeStyle = this.color;
+        if (this.fill) {
+            context.fillStyle = this.color;
+            context.fill();
+        } else {
+            context.stroke();
+        }
+    }
+}
+
+class Arc {
+    constructor({ centerX, centerY, radius, startAngle, endAngle, color = 'black', lineWidth = 1 }) {
+        this.centerX = centerX;
+        this.centerY = centerY;
+        this.radius = radius;
+        this.startAngle = startAngle;
+        this.endAngle = endAngle;
+        this.color = color;
+        this.lineWidth = lineWidth;
+    }
+
+    draw(context) {
+        context.beginPath();
+        context.arc(this.centerX, this.centerY, this.radius, this.startAngle, this.endAngle);
+        context.strokeStyle = this.color;
+        context.lineWidth = this.lineWidth;
+        context.stroke();
+    }
+}
