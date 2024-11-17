@@ -89,3 +89,52 @@ class Arc {
         context.stroke();
     }
 }
+
+class Rectangle {
+    constructor({ x, y, width, height, color = 'black', fill = false }) {
+        this.x = x;
+        this.y = y;
+        this.width = width;
+        this.height = height;
+        this.color = color;
+        this.fill = fill;
+    }
+
+    draw(context) {
+        context.beginPath();
+        context.rect(this.x, this.y, this.width, this.height);
+        context.strokeStyle = this.color;
+        if (this.fill) {
+            context.fillStyle = this.color;
+            context.fill();
+        } else {
+            context.stroke();
+        }
+    }
+}
+
+class Ellipse {
+    constructor({ x, y, radiusX, radiusY, rotation = 0, startAngle = 0, endAngle = 2 * Math.PI, color = 'black', fill = false }) {
+        this.x = x;
+        this.y = y;
+        this.radiusX = radiusX;
+        this.radiusY = radiusY;
+        this.rotation = rotation;
+        this.startAngle = startAngle;
+        this.endAngle = endAngle;
+        this.color = color;
+        this.fill = fill;
+    }
+
+    draw(context) {
+        context.beginPath();
+        context.ellipse(this.x, this.y, this.radiusX, this.radiusY, this.rotation, this.startAngle, this.endAngle);
+        context.strokeStyle = this.color;
+        if (this.fill) {
+            context.fillStyle = this.color;
+            context.fill();
+        } else {
+            context.stroke();
+        }
+    }
+}
