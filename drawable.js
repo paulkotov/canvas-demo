@@ -1,5 +1,5 @@
 class Drawable {
-    constructor({x, y, width, height, color = 'black', stroke = 'none', visible = true}) {
+    constructor({x, y, width, height, color = 'black', stroke = 'none', visible = true, type}) {
         this.x = x;
         this.y = y;
         this.width = width;
@@ -7,6 +7,7 @@ class Drawable {
         this.color = color;
         this.stroke = stroke;
         this.visible = visible; // Default to visible
+        this.type = type
     }
 
     draw(context) {
