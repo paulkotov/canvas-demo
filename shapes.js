@@ -1,3 +1,105 @@
+class Line {
+    constructor({ startX, startY, endX, endY, color = 'black', lineWidth = 1 }) {
+        this.startX = startX;
+        this.startY = startY;
+        this.endX = endX;
+        this.endY = endY;
+        this.color = color;
+        this.lineWidth = lineWidth;
+    }
+
+    setLineWidth(width) {
+        this.lineWidth = width;
+    }
+
+    draw(context) {
+        context.beginPath();
+        context.moveTo(this.startX, this.startY);
+        context.lineTo(this.endX, this.endY);
+        context.strokeStyle = this.color;
+        context.lineWidth = this.lineWidth;
+        context.stroke();
+    }
+
+    toJSON() {
+        return JSON.stringify({
+            type: 'Line',
+            startX: this.startX,
+            startY: this.startY,
+            endX: this.endX,
+            endY: this.endY,
+            color: this.color,
+            lineWidth: this.lineWidth
+        });
+    }
+}
+
+class Circle {
+    constructor({ centerX, centerY, radius, color = 'black', fill = false }) {
+        this.centerX = centerX;
+        this.centerY = centerY;
+        this.radius = radius;
+        this.color = color;
+        this.fill = fill;
+    }
+
+    draw(context) {
+        context.beginPath();
+        context.arc(this.centerX, this.centerY, this.radius, 0, 2 * Math.PI);
+        context.strokeStyle = this.color;
+        if (this.fill) {
+            context.fillStyle = this.color;
+            context.fill();
+        } else {
+            context.stroke();
+        }
+    }
+
+    toJSON() {
+        return JSON.stringify({
+            type: 'Circle',
+            centerX: this.centerX,
+            centerY: this.centerY,
+            radius: this.radius,
+            color: this.color,
+            fill: this.fill
+        });
+    }
+}
+
+class Arc {
+    constructor({ centerX, centerY, radius, startAngle, endAngle, color = 'black', lineWidth = 1 }) {
+        this.centerX = centerX;
+        this.centerY = centerY;
+        this.radius = radius;
+        this.startAngle = startAngle;
+        this.endAngle = endAngle;
+        this.color = color;
+        this.lineWidth = lineWidth;
+    }
+
+    draw(context) {
+        context.beginPath();
+        context.arc(this.centerX, this.centerY, this.radius, this.startAngle, this.endAngle);
+        context.strokeStyle = this.color;
+        context.lineWidth = this.lineWidth;
+        context.stroke();
+    }
+
+    toJSON() {
+        return JSON.stringify({
+            type: 'Arc',
+            centerX: this.centerX,
+            centerY: this.centerY,
+            radius: this.radius,
+            startAngle: this.startAngle,
+            endAngle: this.endAngle,
+            color: this.color,
+            lineWidth: this.lineWidth
+        });
+    }
+}
+
 class Text {
     constructor({ x, y, content, font = '16px Arial', color = 'black' }) {
         this.x = x;
@@ -22,44 +124,32 @@ class Text {
         context.fillStyle = this.color;
         context.fillText(this.content, this.x, this.y);
     }
-}
 
-class Line {
-    constructor({ startX, startY, endX, endY, color = 'black', lineWidth = 1 }) {
-        this.startX = startX;
-        this.startY = startY;
-        this.endX = endX;
-        this.endY = endY;
-        this.color = color;
-        this.lineWidth = lineWidth;
-    }
-
-    setLineWidth(width) {
-        this.lineWidth = width;
-    }
-
-    draw(context) {
-        context.beginPath();
-        context.moveTo(this.startX, this.startY);
-        context.lineTo(this.endX, this.endY);
-        context.strokeStyle = this.color;
-        context.lineWidth = this.lineWidth;
-        context.stroke();
+    toJSON() {
+        return JSON.stringify({
+            type: 'Text',
+            x: this.x,
+            y: this.y,
+            content: this.content,
+            font: this.font,
+            color: this.color
+        });
     }
 }
 
-class Circle {
-    constructor({ centerX, centerY, radius, color = 'black', fill = false }) {
-        this.centerX = centerX;
-        this.centerY = centerY;
-        this.radius = radius;
+class Rectangle {
+    constructor({ x, y, width, height, color = 'black', fill = false }) {
+        this.x = x;
+        this.y = y;
+        this.width = width;
+        this.height = height;
         this.color = color;
         this.fill = fill;
     }
 
     draw(context) {
         context.beginPath();
-        context.arc(this.centerX, this.centerY, this.radius, 0, 2 * Math.PI);
+        context.rect(this.x, this.y, this.width, this.height);
         context.strokeStyle = this.color;
         if (this.fill) {
             context.fillStyle = this.color;
@@ -68,24 +158,57 @@ class Circle {
             context.stroke();
         }
     }
+
+    toJSON() {
+        return JSON.stringify({
+            type: 'Rectangle',
+            x: this.x,
+            y: this.y,
+            width: this.width,
+            height: this.height,
+            color: this.color,
+            fill: this.fill
+        });
+    }
 }
 
-class Arc {
-    constructor({ centerX, centerY, radius, startAngle, endAngle, color = 'black', lineWidth = 1 }) {
-        this.centerX = centerX;
-        this.centerY = centerY;
-        this.radius = radius;
+class Ellipse {
+    constructor({ x, y, radiusX, radiusY, rotation = 0, startAngle = 0, endAngle = 2 * Math.PI, color = 'black', fill = false }) {
+        this.x = x;
+        this.y = y;
+        this.radiusX = radiusX;
+        this.radiusY = radiusY;
+        this.rotation = rotation;
         this.startAngle = startAngle;
         this.endAngle = endAngle;
         this.color = color;
-        this.lineWidth = lineWidth;
+        this.fill = fill;
     }
 
     draw(context) {
         context.beginPath();
-        context.arc(this.centerX, this.centerY, this.radius, this.startAngle, this.endAngle);
+        context.ellipse(this.x, this.y, this.radiusX, this.radiusY, this.rotation, this.startAngle, this.endAngle);
         context.strokeStyle = this.color;
-        context.lineWidth = this.lineWidth;
-        context.stroke();
+        if (this.fill) {
+            context.fillStyle = this.color;
+            context.fill();
+        } else {
+            context.stroke();
+        }
+    }
+
+    toJSON() {
+        return JSON.stringify({
+            type: 'Ellipse',
+            x: this.x,
+            y: this.y,
+            radiusX: this.radiusX,
+            radiusY: this.radiusY,
+            rotation: this.rotation,
+            startAngle: this.startAngle,
+            endAngle: this.endAngle,
+            color: this.color,
+            fill: this.fill
+        });
     }
 }
