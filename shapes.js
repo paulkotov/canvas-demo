@@ -212,3 +212,30 @@ class Ellipse {
         });
     }
 }
+
+class CanvasImage {
+    constructor({ src, x, y, width, height }) {
+        this.src = src;
+        this.x = x;
+        this.y = y;
+        this.width = width;
+        this.height = height;
+        this.image = new Image();
+        this.image.src = this.src;
+    }
+
+    draw(context) {
+        context.drawImage(this.image, this.x, this.y, this.width, this.height);
+    }
+
+    toJSON() {
+        return JSON.stringify({
+            type: 'CanvasImage',
+            src: this.src,
+            x: this.x,
+            y: this.y,
+            width: this.width,
+            height: this.height
+        });
+    }
+}
