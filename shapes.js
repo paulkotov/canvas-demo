@@ -239,3 +239,38 @@ class CanvasImage {
         });
     }
 }
+
+class Polygon {
+    constructor({ vertices, color = 'black', fill = false }) {
+        this.id = generateId();
+        this.vertices = vertices;
+        this.color = color;
+        this.fill = fill;
+    }
+
+    draw(context) {
+        context.beginPath();
+        context.moveTo(this.vertices[0].x, this.vertices[0].y);
+        for (let i = 1; i < this.vertices.length; i++) {
+            context.lineTo(this.vertices[i].x, this.vertices[i].y);
+        }
+        context.closePath();
+        context.strokeStyle = this.color;
+        if (this.fill) {
+            context.fillStyle = this.color;
+            context.fill();
+        } else {
+            context.stroke();
+        }
+    }
+
+    toJSON() {
+        return JSON.stringify({
+            id: this.id,
+            type: 'Polygon',
+            vertices: this.vertices,
+            color: this.color,
+            fill: this.fill
+        });
+    }
+}
