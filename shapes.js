@@ -1,5 +1,6 @@
 class Line {
     constructor({ startX, startY, endX, endY, color = 'black', lineWidth = 1 }) {
+        this.id = generateId();
         this.startX = startX;
         this.startY = startY;
         this.endX = endX;
@@ -36,6 +37,7 @@ class Line {
 
 class Circle {
     constructor({ centerX, centerY, radius, color = 'black', fill = false }) {
+        this.id = generateId();
         this.centerX = centerX;
         this.centerY = centerY;
         this.radius = radius;
@@ -69,6 +71,7 @@ class Circle {
 
 class Arc {
     constructor({ centerX, centerY, radius, startAngle, endAngle, color = 'black', lineWidth = 1 }) {
+        this.id = generateId();
         this.centerX = centerX;
         this.centerY = centerY;
         this.radius = radius;
@@ -102,6 +105,7 @@ class Arc {
 
 class Text {
     constructor({ x, y, content, font = '16px Arial', color = 'black' }) {
+        this.id = generateId();
         this.x = x;
         this.y = y;
         this.content = content;
@@ -139,6 +143,7 @@ class Text {
 
 class Rectangle {
     constructor({ x, y, width, height, color = 'black', fill = false }) {
+        this.id = generateId();
         this.x = x;
         this.y = y;
         this.width = width;
@@ -174,6 +179,7 @@ class Rectangle {
 
 class Ellipse {
     constructor({ x, y, radiusX, radiusY, rotation = 0, startAngle = 0, endAngle = 2 * Math.PI, color = 'black', fill = false }) {
+        this.id = generateId();
         this.x = x;
         this.y = y;
         this.radiusX = radiusX;
@@ -215,6 +221,7 @@ class Ellipse {
 
 class CanvasImage {
     constructor({ src, x, y, width, height }) {
+        this.id = generateId();
         this.src = src;
         this.x = x;
         this.y = y;
@@ -242,6 +249,7 @@ class CanvasImage {
 
 class Polygon {
     constructor({ vertices, color = 'black', fill = false }) {
+        this.id = generateId();
         this.id = generateId();
         this.vertices = vertices;
         this.color = color;
