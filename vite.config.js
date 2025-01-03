@@ -1,7 +1,12 @@
-module.exports = {
-    root: 'src',
-    build: {
-      outDir: '../dist',
-      emptyOutDir: true
-    }
-}
+import { defineConfig } from 'vite'
+
+export default defineConfig({
+  root: '.',
+  server: {
+    open: '/index.html',
+  },
+  build: {
+    outDir: 'dist',
+    emptyOutDir: true
+  }
+});
