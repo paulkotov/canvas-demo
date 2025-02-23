@@ -8,5 +8,11 @@ export default defineConfig({
   build: {
     outDir: 'dist',
     emptyOutDir: true
-  }
+  },
+  test: {
+    // testFiles: 'src/**/*.test.js',
+    // package: {
+    //   exports: 'auto',
+    // },
+  },
 });
