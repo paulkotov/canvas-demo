@@ -20,7 +20,6 @@ class Canvas {
     this.elements = [];
     this.originX = 0;
     this.originY = 0;
-    this.elements = [];
   }
 
   #createCanvas(params) {
