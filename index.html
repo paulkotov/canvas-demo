@@ -24,6 +24,7 @@
     
       .controls__container {
         position: absolute;
+        bottom: 0;
         z-index: 10;
       }
     
@@ -33,15 +34,14 @@
         justify-content: space-between;
       }
     </style>
+    <canvas id="canvas"></canvas>
     <div class="controls__container">
       <form name="controls__form" class="controls__form">
         <input class="controls__form_input" type="number" name="branches" placeholder="branches">
         <input class="controls__form_input" type="number" name="spread" placeholder="spread">
         <input class="controls__form_input" type="number" name="sides" placeholder="sides">
       </form>
-    
     </div>
-    <canvas id="canvas"></canvas>
     <script type="module" src="/src/main.js"></script>
   </body>
 </html>

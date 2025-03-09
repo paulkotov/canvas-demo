@@ -38,7 +38,7 @@
         
     </div>
     <canvas id="canvas"></canvas>
-    <canvas id="animated-canvas"></canvas>
+    <!-- <canvas id="animated-canvas"></canvas> -->
     <script>
         const get = (obj, key, defaultValue) => {
             if (!obj) {
@@ -50,9 +50,10 @@
             return defaultValue;
         };
         
-function generateId() {
-    return '_' + Math.random().toString(36).substr(2, 9);
-}
+        function generateId() {
+            return '_' + Math.random().toString(36).substr(2, 9);
+        }
+
         class Canvas {
             constructor(id, params = {}) {
                 if (!id) {
