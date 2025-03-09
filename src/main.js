@@ -1,85 +1,84 @@
+import { Canvas } from './canvas.js';
+
 const get = (obj, key, defaultValue) => {
-    if (!obj) {
-        return defaultValue;
-    }
-    if (key in obj) {
+    // if (!obj || !key in obj) {
+    //     return defaultValue;
+    // }
+    if (obj  && key in obj) {
         return obj[key];
     }
     return defaultValue;
 };
 
 function generateId() {
-    return '_' + Math.random().toString(36).substr(2, 9);
+    return Math.random().toString(36).substr(2, 9);
 }
-class Canvas {
-    constructor(id, params = {}) {
-        if (!id) {
-            this.#createCanvas(params);
-        } else {
-            this.#getCanvas(id, params);
-        }
-        this.elements = [];
-        this.originX = 0;
-        this.originY = 0;
-        this.elements = [];
-    }
 
-    #createCanvas(params) {
-        const canvas = document.createElement('canvas');
-        document.body.appendChild(canvas);
-        canvas.width = get(params, 'width', window.innerWidth);
-        canvas.height = get(params, 'height', window.innerHeight);
-        this.canvas = canvas;
-        this.context = canvas.getContext('2d');
-    }
+// class Canvas {
+//     constructor(id, params = {}) {
+//         if (!id) {
+//             this.#createCanvas(params);
+//         } else {
+//             this.#getCanvas(id, params);
+//         }
+//         this.elements = [];
+//         this.originX = 0;
+//         this.originY = 0;
+//     }
 
-    #getCanvas(id, params) {
-        const canvas = document.getElementById(id);
-        if (!canvas) {
-            this.#createCanvas(params);
-        } else {
-            this.canvas = canvas;
-            this.context = canvas.getContext('2d');
-        }
-    }
+//     #createCanvas(params) {
+//         const canvas = document.createElement('canvas');
+//         document.body.appendChild(canvas);
+//         canvas.width = get(params, 'width', window.innerWidth);
+//         canvas.height = get(params, 'height', window.innerHeight);
+//         this.canvas = canvas;
+//         this.context = canvas.getContext('2d');
+//     }
 
-    createElement(type, params) {
-        let element;
-        switch (type) {
-            case 'line':
-                element = new Line(params);
-                break;
-            case 'circle':
-                element = new Circle(params);
-                break;
-            case 'arc':
-                element = new Arc(params);
-                break;
-            default:
-                throw new Error('Unsupported element type');
-        }
-        this.elements.push(element);
-        return element;
-    }
+//     #getCanvas(id, params) {
+//         const canvas = document.getElementById(id);
+//         this.canvas = canvas;
+//         this.context = canvas.getContext('2d');
+//     }
 
-    removeElement(element) {
-        this.elements = this.elements.filter(el => el !== element);
-    }
+//     createElement(type, params) {
+//         let element;
+//         // fix to object
+//         switch (type) {
+//             case 'line':
+//                 element = new Line(params);
+//                 break;
+//             case 'circle':
+//                 element = new Circle(params);
+//                 break;
+//             case 'arc':
+//                 element = new Arc(params);
+//                 break;
+//             default:
+//                 throw new Error('Unsupported element type');
+//         }
+//         this.elements.push(element);
+//         return element;
+//     }
 
-    getElementById(id) {
-        return this.elements.find(el => el.id === id);
-    }
+//     getElementById(id) {
+//         return this.elements.find(el => el.id === id);
+//     }
 
-    appendChild(element) {
-        this.elements.push(element);
-        element.draw(this.context);
-    }
+//     appendElement(element) {
+//         this.elements.push(element);
+//         element.draw(this.context);
+//     }
 
-    draw() {
-        this.context.clearRect(0, 0, this.canvas.width, this.canvas.height);
-        this.elements.forEach(element => element.draw(this.context));
-    }
-}
+//     removeElement(element) {
+//         this.elements = this.elements.filter(el => el !== element);
+//     }
+
+//     draw() {
+//         this.context.clearRect(0, 0, this.canvas.width, this.canvas.height);
+//         this.elements.forEach(element => element.draw(this.context));
+//     }
+// }
 
 class Fractal {
     context = null;
@@ -153,6 +152,6 @@ class Fractal {
 
 window.addEventListener('load', function () {
     const canvas = new Canvas('canvas');
-    new Fractal(canvas.canvas).drawFractal({ x: 200, y: 200 }, 0.25);
+    // new Fractal(canvas.canvas).drawFractal({ x: 200, y: 200 }, 0.25);
     new Fractal(canvas.canvas, { size: 200, sides: 6, maxLevel: 3, color: 'hsl(500, 100%, 50%)' }).drawFractal({ x: 600, y: 500 }, 0.25, 0.2);
 });

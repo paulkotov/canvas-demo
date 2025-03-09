@@ -10,12 +10,12 @@ const get = (obj, key, defaultValue) => {
 
 const generateId = () => '_' + Math.random().toString(36).substr(2, 9);
 
-class Canvas {
+export class Canvas {
   constructor(id, params = {}) {
     if (!id) {
       this.#createCanvas(params);
     } else {
-      this.#getCanvas(id, params);
+      this.#getCanvas(id);
     }
     this.elements = [];
     this.originX = 0;
@@ -31,14 +31,10 @@ class Canvas {
     this.context = canvas.getContext('2d');
   }
 
-  #getCanvas(id, params) {
+  #getCanvas(id) {
     const canvas = document.getElementById(id);
-    if (!canvas) {
-      this.#createCanvas(params);
-    } else {
-      this.canvas = canvas;
-      this.context = canvas.getContext('2d');
-    }
+    this.canvas = canvas;
+    this.context = canvas.getContext('2d');
   }
 
   createElement(type, params) {
@@ -68,7 +64,7 @@ class Canvas {
     return this.elements.find(el => el.id === id);
   }
 
-  appendChild(element) {
+  appendElement(element) {
     this.elements.push(element);
     element.draw(this.context);
   }
