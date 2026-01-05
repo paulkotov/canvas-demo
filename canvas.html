@@ -215,7 +215,7 @@
 
     window.addEventListener('load', function () {
       const canvas = new Canvas('canvas');
-      // new Fractal(canvas.canvas).drawFractal({ x: 200, y: 200 }, 0.25);
+      new Fractal(canvas.canvas, { baseHue: 60 }).drawFractal({ x: 200, y: 200 }, 0.25);
       new Fractal(canvas.canvas, { size: 150, sides: 5, maxLevel: 3, baseHue: 0 }).drawFractal(undefined, 1, 0.2);
     });
 
