@@ -1,205 +1,225 @@
 <html lang="en">
+
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
 </head>
+
 <body>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
 
-        #canvas {
-            background-color: black;
-            position: absolute;
-            top: 0;
-            left: 0;
-            z-index: 1;
-        }
-        .controls__container {
-            position: absolute;
-            z-index: 10;
-        }
-        .controls__form {
-            display: flex;
-            flex-direction: row;
-            justify-content: space-between;
-        }
-    </style>
-    <div class="controls__container">
-        <form name="controls__form" class="controls__form">
-            <input class="controls__form_input" type="number" name="branches" placeholder="branches">
-            <input class="controls__form_input" type="number" name="spread" placeholder="spread">
-            <input class="controls__form_input" type="number" name="sides" placeholder="sides">
-        </form>
-        
-    </div>
-    <canvas id="canvas"></canvas>
-    <!-- <canvas id="animated-canvas"></canvas> -->
-    <script>
-        const get = (obj, key, defaultValue) => {
-            if (!obj) {
-                return defaultValue;
-            }
-            if (key in obj) {
-                return obj[key];
-            }
-            return defaultValue;
-        };
-        
-        function generateId() {
-            return '_' + Math.random().toString(36).substr(2, 9);
-        }
+    body {
+      min-width: 100vw;
+      min-height: 100vh;
+      overflow: hidden;
+    }
 
-        class Canvas {
-            constructor(id, params = {}) {
-                if (!id) {
-                    this.#createCanvas(params);
-                } else {
-                    this.#getCanvas(id, params);
-                }
-                        this.elements = [];
+    #canvas {
+      background-color: black;
+      position: absolute;
+      top: 0;
+      left: 0;
+      z-index: 1;
+      min-height: 100vh;
+      /* max-width: 100vw; */
+      /* max-height: 100vh; */
+    }
+
+    .controls__container {
+      position: absolute;
+      z-index: 10;
+    }
+
+    .controls__form {
+      display: flex;
+      flex-direction: row;
+      justify-content: space-between;
+    }
+  </style>
+  <div class="controls__container">
+    <form name="controls__form" class="controls__form">
+      <input class="controls__form_input" type="number" name="branches" placeholder="branches">
+      <input class="controls__form_input" type="number" name="spread" placeholder="spread">
+      <input class="controls__form_input" type="number" name="sides" placeholder="sides">
+    </form>
+
+  </div>
+  <canvas id="canvas"></canvas>
+  <!-- <canvas id="animated-canvas"></canvas> -->
+  <script>
+    const get = (obj, key, defaultValue) => {
+      if (!obj) {
+        return defaultValue;
+      }
+      if (key in obj) {
+        return obj[key];
+      }
+      return defaultValue;
+    };
+
+    function generateId() {
+      return '_' + Math.random().toString(36).substr(2, 9);
+    }
+
+    class Canvas {
+      constructor(id, params = {}) {
+        if (!id) {
+          this.#createCanvas(params);
+        } else {
+          this.#getCanvas(id, params);
+        }
+        this.elements = [];
         this.originX = 0;
         this.originY = 0;
-                this.elements = [];
-            }
+        this.elements = [];
+      }
 
-            #createCanvas(params) {
-                const canvas = document.createElement('canvas');
-                document.body.appendChild(canvas);
-                canvas.width = get(params, 'width', window.innerWidth);
-                canvas.height = get(params, 'height', window.innerHeight);
-                this.canvas = canvas;
-                this.context = canvas.getContext('2d');
-            }
+      #createCanvas(params) {
+        const canvas = document.createElement('canvas');
+        document.body.appendChild(canvas);
+        canvas.width = get(params, 'width', window.innerWidth);
+        canvas.height = get(params, 'height', window.innerHeight);
+        this.canvas = canvas;
+        this.context = canvas.getContext('2d');
+      }
 
-            #getCanvas(id, params) {
-                const canvas = document.getElementById(id);
-                if (!canvas) {
-                    this.#createCanvas(params);
-                } else {
-                    this.canvas = canvas;
-                    this.context = canvas.getContext('2d');
-                }
-            }
-
-            createElement(type, params) {
-                let element;
-                switch (type) {
-                    case 'line':
-                        element = new Line(params);
-                        break;
-                    case 'circle':
-                        element = new Circle(params);
-                        break;
-                    case 'arc':
-                        element = new Arc(params);
-                        break;
-                    default:
-                        throw new Error('Unsupported element type');
-                }
-                this.elements.push(element);
-                return element;
-            }
-
-            removeElement(element) {
-                this.elements = this.elements.filter(el => el !== element);
-            }
-
-            getElementById(id) {
-                return this.elements.find(el => el.id === id);
-            }
-
-            appendChild(element) {
-                this.elements.push(element);
-                element.draw(this.context);
-            }
-
-            draw() {
-                this.context.clearRect(0, 0, this.canvas.width, this.canvas.height);
-                this.elements.forEach(element => element.draw(this.context));
-            }
+      #getCanvas(id, params) {
+        const canvas = document.getElementById(id);
+        if (!canvas) {
+          this.#createCanvas(params);
+        } else {
+          canvas.width = get(params, 'width', window.innerWidth);
+          canvas.height = get(params, 'height', window.innerHeight);
+          this.canvas = canvas;
+          this.context = canvas.getContext('2d');
         }
+      }
 
-        class Fractal {
-            context = null;
-            params = {};
-
-            constructor(canvasRef, fractalParams) {
-                if (!canvasRef) {
-                    throw Error('Error with accessing canvas');
-                }
-                this.width = canvasRef.width;
-                this.height = canvasRef.height;
-                const ctx = canvasRef.getContext('2d');
-                ctx.lineWidth = 10;
-                ctx.lineCap = 'round';
-                ctx.shadowColor = 'rgba(0, 0, 0, 0.7)';
-                ctx.shadowOffsetX = 10;
-                ctx.shadowOffsetY = 5;
-                ctx.shadowBlur = 10;
-                this.context = ctx;
-
-                this.params.size = get(fractalParams, 'size', 300);
-                this.params.sides = get(fractalParams, 'sides', 5);
-                this.params.maxLevel = get(fractalParams, 'maxLevel', 2);
-                this.params.scale = get(fractalParams, 'scale', 0.7);
-                this.params.spread = get(fractalParams, 'spread', 0.5);
-                this.params.branches = get(fractalParams, 'branches', 2);
-                this.params.color = get(fractalParams, 'color', 'hsl(200, 100%, 50%)');
-            }
-
-            #drawBranch(level) {
-                if (level === undefined || level > this.params.maxLevel) {
-                    return;
-                }
-                this.context.beginPath();
-                this.context.moveTo(0, 0);
-                this.context.lineTo(this.params.size, 0);
-                this.context.stroke();
-                for (let i = 0; i < this.params.branches; i++) {
-                    this.context.save();
-                    this.context.translate(this.params.size - (this.params.size / this.params.branches) * i, 0);
-                    this.context.rotate(this.params.spread);
-                    this.context.scale(this.params.scale, this.params.scale);
-                    this.#drawBranch(level + 1);
-                    this.context.restore();
-
-                    this.context.save();
-                    this.context.translate(this.params.size - (this.params.size / this.params.branches) * i, 0);
-                    this.context.rotate(-this.params.spread);
-                    this.context.scale(this.params.scale, this.params.scale);
-                    this.#drawBranch(level + 1);
-                    this.context.restore();
-                }
-            }
-
-            drawFractal(position, scale, rotate) {
-                this.context.save();
-                this.context.strokeStyle = this.params.color;
-                this.context.translate(
-                    get(position, 'x', this.width / 2),
-                    get(position, 'y', this.height / 2)
-                );
-                this.context.scale(scale || 1, scale || 1);
-                this.context.rotate(rotate || 0);
-                for (let i = 0; i < this.params.sides; i++) {
-                    this.context.rotate((Math.PI * 2) / this.params.sides);
-                    this.#drawBranch(0);
-                }
-                this.context.restore();
-            }
+      createElement(type, params) {
+        let element;
+        switch (type) {
+          case 'line':
+            element = new Line(params);
+            break;
+          case 'circle':
+            element = new Circle(params);
+            break;
+          case 'arc':
+            element = new Arc(params);
+            break;
+          default:
+            throw new Error('Unsupported element type');
         }
+        this.elements.push(element);
+        return element;
+      }
 
-        window.addEventListener('load', function () {
-            const canvas = new Canvas('canvas');
-            new Fractal(canvas.canvas).drawFractal({x: 200, y: 200}, 0.25);
-            new Fractal(canvas.canvas, {size: 200, sides: 6, maxLevel: 3, color: 'hsl(500, 100%, 50%)'}).drawFractal({x: 600, y: 500}, 0.25, 0.2);
-            });
+      removeElement(element) {
+        this.elements = this.elements.filter(el => el !== element);
+      }
 
-    </script>
+      getElementById(id) {
+        return this.elements.find(el => el.id === id);
+      }
+
+      appendChild(element) {
+        this.elements.push(element);
+        element.draw(this.context);
+      }
+
+      draw() {
+        this.context.clearRect(0, 0, this.canvas.width, this.canvas.height);
+        this.elements.forEach(element => element.draw(this.context));
+      }
+    }
+
+    class Fractal {
+      context = null;
+      params = {};
+
+      constructor(canvasRef, fractalParams) {
+        if (!canvasRef || !(canvasRef instanceof HTMLCanvasElement)) {
+          throw Error('Error with accessing canvas');
+        }
+        this.width = canvasRef.width;
+        this.height = canvasRef.height;
+
+        const ctx = canvasRef.getContext('2d');
+        ctx.lineWidth = 10;
+        ctx.lineCap = 'round';
+        ctx.shadowColor = 'rgba(0, 0, 0, 0.7)';
+        ctx.shadowOffsetX = 10;
+        ctx.shadowOffsetY = 5;
+        ctx.shadowBlur = 10;
+        this.context = ctx;
+
+        this.params.size = get(fractalParams, 'size', 300);
+        this.params.sides = get(fractalParams, 'sides', 5);
+        this.params.maxLevel = get(fractalParams, 'maxLevel', 2);
+        this.params.scale = get(fractalParams, 'scale', 0.7);
+        this.params.spread = get(fractalParams, 'spread', 0.5);
+        this.params.branches = get(fractalParams, 'branches', 2);
+        this.params.baseHue = get(fractalParams, 'baseHue', 200); // Starting hue (0-360)
+      }
+
+      #drawBranch(level) {
+        if (level === undefined || level > this.params.maxLevel) {
+          return;
+        }
+        // Calculate hue based on level (shifts color per level)
+        const hueShift = (level / this.params.maxLevel) * 120; // 0 to 120 degree shift
+        this.context.strokeStyle = `hsl(${this.params.baseHue + hueShift}, 100%, 50%)`;
+
+        this.context.beginPath();
+        this.context.moveTo(0, 0);
+        this.context.lineTo(this.params.size, 0);
+        this.context.stroke();
+        for (let i = 0; i < this.params.branches; i++) {
+          this.context.save();
+          this.context.translate(this.params.size - (this.params.size / this.params.branches) * i, 0);
+          this.context.rotate(this.params.spread);
+          this.context.scale(this.params.scale, this.params.scale);
+          this.#drawBranch(level + 1);
+          this.context.restore();
+
+          this.context.save();
+          this.context.translate(this.params.size - (this.params.size / this.params.branches) * i, 0);
+          this.context.rotate(-this.params.spread);
+          this.context.scale(this.params.scale, this.params.scale);
+          this.#drawBranch(level + 1);
+          this.context.restore();
+        }
+      }
+
+      drawFractal(position, scale, rotate) {
+        this.context.save();
+        this.context.translate(
+          get(position, 'x', this.width / 2),
+          get(position, 'y', this.height / 2)
+        );
+        this.context.scale(scale || 1, scale || 1);
+        this.context.rotate(rotate || 0);
+        for (let i = 0; i < this.params.sides; i++) {
+          this.context.rotate((Math.PI * 2) / this.params.sides);
+          this.#drawBranch(0);
+        }
+        this.context.restore();
+      }
+    }
+
+    window.addEventListener('load', function () {
+      const canvas = new Canvas('canvas');
+      new Fractal(canvas.canvas, { baseHue: 60 }).drawFractal({ x: 200, y: 200 }, 0.25);
+      new Fractal(canvas.canvas, { size: 150, sides: 5, maxLevel: 3, baseHue: 0 }).drawFractal(undefined, 1, 0.2);
+    });
+
+  </script>
 </body>
+
 </html>
