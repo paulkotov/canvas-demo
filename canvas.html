@@ -45,8 +45,9 @@
   <div class="controls__container">
     <form name="controls__form" class="controls__form">
       <input class="controls__form_input" type="number" name="branches" placeholder="branches">
-      <input class="controls__form_input" type="number" name="spread" placeholder="spread">
+      <input class="controls__form_input" type="decimal" name="spread" placeholder="spread">
       <input class="controls__form_input" type="number" name="sides" placeholder="sides">
+      <button class="controls__form_button" type="submit" name="generate">Draw</button>
     </form>
 
   </div>
@@ -197,7 +198,7 @@
         }
       }
 
-      drawFractal(position, scale, rotate) {
+      draw(position, scale, rotate) {
         this.context.save();
         this.context.translate(
           get(position, 'x', this.width / 2),
@@ -214,9 +215,25 @@
     }
 
     window.addEventListener('load', function () {
+
       const canvas = new Canvas('canvas');
-      new Fractal(canvas.canvas, { baseHue: 60 }).drawFractal({ x: 200, y: 200 }, 0.25);
-      new Fractal(canvas.canvas, { size: 150, sides: 5, maxLevel: 3, baseHue: 0 }).drawFractal(undefined, 1, 0.2);
+      const form = document.querySelector('form[name="controls__form"]');
+      console.log(form);
+      form.addEventListener('submit', function (e) {
+        e.preventDefault();
+        // get form controls
+        // const form = document.querySelector('form[name="controls__form"]');
+        const branchesInput = form.querySelector('input[name="branches"]');
+        const spreadInput = form.querySelector('input[name="spread"]');
+        const sidesInput = form.querySelector('input[name="sides"]');
+        const branches = branchesInput.value;
+        const spread = spreadInput.value;
+        const sides = sidesInput.value;
+        console.log(branches, spread, sides);
+        new Fractal(canvas.canvas, { baseHue: 60, branches, spread, sides, maxLevel: 3 }).draw(undefined, 1, 0.25);
+      });
+      // new Fractal(canvas.canvas, { baseHue: 60 }).drawFractal({ x: 200, y: 200 }, 0.25);
+      // new Fractal(canvas.canvas, { size: 150, sides: 5, maxLevel: 3, baseHue: 0 }).drawFractal(undefined, 1, 0.2);
     });
 
   </script>
