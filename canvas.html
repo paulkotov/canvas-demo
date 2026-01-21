@@ -48,6 +48,8 @@
       <input class="controls__form_input" type="decimal" name="spread" placeholder="spread">
       <input class="controls__form_input" type="number" name="sides" placeholder="sides">
       <button class="controls__form_button" type="submit" name="generate">Draw</button>
+      <button class="controls__form_button" type="reset" name="reset">Reset</button>
+
     </form>
 
   </div>
@@ -137,6 +139,10 @@
       draw() {
         this.context.clearRect(0, 0, this.canvas.width, this.canvas.height);
         this.elements.forEach(element => element.draw(this.context));
+      }
+
+      clear() {
+        this.context.clearRect(0, 0, this.canvas.width, this.canvas.height);
       }
     }
 
@@ -231,6 +237,18 @@
         const sides = sidesInput.value;
         console.log(branches, spread, sides);
         new Fractal(canvas.canvas, { baseHue: 60, branches, spread, sides, maxLevel: 3 }).draw(undefined, 1, 0.25);
+      });
+      form.addEventListener('reset', function (e) {
+        e.preventDefault();
+        // get form controls
+        // const form = document.querySelector('form[name="controls__form"]');
+        const branchesInput = form.querySelector('input[name="branches"]');
+        const spreadInput = form.querySelector('input[name="spread"]');
+        const sidesInput = form.querySelector('input[name="sides"]');
+        branchesInput.value = '';
+        spreadInput.value = '';
+        sidesInput.value = '';
+        canvas.clear();
       });
       // new Fractal(canvas.canvas, { baseHue: 60 }).drawFractal({ x: 200, y: 200 }, 0.25);
       // new Fractal(canvas.canvas, { size: 150, sides: 5, maxLevel: 3, baseHue: 0 }).drawFractal(undefined, 1, 0.2);
