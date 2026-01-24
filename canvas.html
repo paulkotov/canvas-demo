@@ -37,9 +37,28 @@
     }
 
     .controls__form {
+      height: 32px;
       display: flex;
       flex-direction: row;
       justify-content: space-between;
+      /* align-items: center; */
+      gap: 8px;
+    }
+
+    .controls__form_input {
+      font-size: medium;
+    }
+
+    .controls__form_button {
+      min-width: 100px;
+    }
+
+    .controls__form_checkbox {
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+      gap: 8px;
+      color: #fff;
     }
   </style>
   <div class="controls__container">
@@ -49,7 +68,10 @@
       <input class="controls__form_input" type="number" name="sides" placeholder="sides">
       <button class="controls__form_button" type="submit" name="generate">Draw</button>
       <button class="controls__form_button" type="reset" name="reset">Reset</button>
-
+      <div class="controls__form_checkbox">
+        <label for="size">Random insert</label>
+        <input class="controls__form_input" type="checkbox" name="randomInsert" placeholder="size">
+      </div>
     </form>
 
   </div>
@@ -187,6 +209,7 @@
         this.context.moveTo(0, 0);
         this.context.lineTo(this.params.size, 0);
         this.context.stroke();
+
         for (let i = 0; i < this.params.branches; i++) {
           this.context.save();
           this.context.translate(this.params.size - (this.params.size / this.params.branches) * i, 0);
@@ -212,6 +235,7 @@
         );
         this.context.scale(scale || 1, scale || 1);
         this.context.rotate(rotate || 0);
+
         for (let i = 0; i < this.params.sides; i++) {
           this.context.rotate((Math.PI * 2) / this.params.sides);
           this.#drawBranch(0);
@@ -235,8 +259,17 @@
         const branches = branchesInput.value;
         const spread = spreadInput.value;
         const sides = sidesInput.value;
-        console.log(branches, spread, sides);
-        new Fractal(canvas.canvas, { baseHue: 60, branches, spread, sides, maxLevel: 3 }).draw(undefined, 1, 0.25);
+        const randomInsertInput = form.querySelector('input[name="randomInsert"]');
+        const isRandomInsert = randomInsertInput.checked;
+        let points = undefined;
+        // need save
+        if (isRandomInsert) {
+          points = {
+            x: Math.random() * canvas.canvas.width,
+            y: Math.random() * canvas.canvas.height
+          };
+        }
+        new Fractal(canvas.canvas, { baseHue: 60, branches, spread, sides, maxLevel: 3 }).draw(points, 1, 0.25);
       });
       form.addEventListener('reset', function (e) {
         e.preventDefault();
