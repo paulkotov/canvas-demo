@@ -1,47 +1,53 @@
 <!doctype html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Canvas experiments</title>
-  </head>
-  <body>
-    <style>
-      * {
-        margin: 0;
-        padding: 0;
-        box-sizing: border-box;
-      }
-    
-      #canvas {
-        background-color: black;
-        position: absolute;
-        top: 0;
-        left: 0;
-        z-index: 1;
-      }
-    
-      .controls__container {
-        position: absolute;
-        bottom: 0;
-        z-index: 10;
-      }
-    
-      .controls__form {
-        display: flex;
-        flex-direction: row;
-        justify-content: space-between;
-      }
-    </style>
-    <canvas id="canvas"></canvas>
-    <div class="controls__container">
-      <form name="controls__form" class="controls__form">
-        <input class="controls__form_input" type="number" name="branches" placeholder="branches">
-        <input class="controls__form_input" type="number" name="spread" placeholder="spread">
-        <input class="controls__form_input" type="number" name="sides" placeholder="sides">
-      </form>
-    </div>
-    <script type="module" src="/src/main.js"></script>
-  </body>
+
+<head>
+  <meta charset="UTF-8" />
+  <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Canvas experiments</title>
+</head>
+
+<body>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    #canvas {
+      background-color: black;
+      position: absolute;
+      top: 0;
+      left: 0;
+      z-index: 1;
+      width: 100%;
+      height: 100%;
+      display: block;
+    }
+
+    .controls__container {
+      position: absolute;
+      bottom: 0;
+      z-index: 10;
+    }
+
+    .controls__form {
+      display: flex;
+      flex-direction: row;
+      justify-content: space-between;
+    }
+  </style>
+  <canvas id="canvas"></canvas>
+  <div class="controls__container">
+    <form name="controls__form" class="controls__form">
+      <input class="controls__form_input" type="number" name="branches" placeholder="branches">
+      <input class="controls__form_input" type="number" name="spread" placeholder="spread">
+      <input class="controls__form_input" type="number" name="sides" placeholder="sides">
+    </form>
+  </div>
+  <script type="module" src="/src/main.js"></script>
+</body>
+
 </html>
