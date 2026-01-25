@@ -5,6 +5,7 @@ type TCanvasInitialParams = {
   height: number;
 }
 
+
 export class Canvas {
   elements: any;
   originX: number;
@@ -14,7 +15,7 @@ export class Canvas {
 
   constructor(id: string, params = {}) {
     if (!id) {
-      this.#createCanvas(params);
+      this.#createCanvas(params: TParams);
     } else {
       this.#getCanvas(id);
     }
