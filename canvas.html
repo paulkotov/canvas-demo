@@ -46,6 +46,7 @@
     }
 
     .controls__form_input {
+      min-width: 100px;
       font-size: medium;
     }
 
@@ -65,13 +66,18 @@
     <form name="controls__form" class="controls__form">
       <input class="controls__form_input" type="number" name="branches" placeholder="branches">
       <input class="controls__form_input" type="decimal" name="spread" placeholder="spread">
+      <!-- TODO: change input to rays -->
       <input class="controls__form_input" type="number" name="sides" placeholder="sides">
+      <input class="controls__form_input" type="number" name="scale" placeholder="scale">
+      <input class="controls__form_input" type="number" name="angle" placeholder="angle" min="0" max="180">
       <button class="controls__form_button" type="submit" name="generate">Draw</button>
       <button class="controls__form_button" type="reset" name="reset">Reset</button>
+
       <div class="controls__form_checkbox">
-        <label for="size">Random insert</label>
+        <label for="randomInsert">Random insert</label>
         <input class="controls__form_input" type="checkbox" name="randomInsert" placeholder="size">
       </div>
+      <!-- TODO: add checkbox for symmetric fractal -->
     </form>
 
   </div>
@@ -198,6 +204,7 @@
       }
 
       #drawBranch(level) {
+        // TODO: add max level to params
         if (level === undefined || level > this.params.maxLevel) {
           return;
         }
@@ -248,14 +255,13 @@
 
       const canvas = new Canvas('canvas');
       const form = document.querySelector('form[name="controls__form"]');
-      console.log(form);
+      // console.log(form);
       form.addEventListener('submit', function (e) {
         e.preventDefault();
-        // get form controls
-        // const form = document.querySelector('form[name="controls__form"]');
         const branchesInput = form.querySelector('input[name="branches"]');
         const spreadInput = form.querySelector('input[name="spread"]');
         const sidesInput = form.querySelector('input[name="sides"]');
+        const angleInput = form.querySelector('input[name="angle"]');
         const branches = branchesInput.value;
         const spread = spreadInput.value;
         const sides = sidesInput.value;
@@ -269,7 +275,11 @@
             y: Math.random() * canvas.canvas.height
           };
         }
-        new Fractal(canvas.canvas, { baseHue: 60, branches, spread, sides, maxLevel: 3 }).draw(points, 1, 0.25);
+        let rotation = 0;
+        if (angleInput.value) {
+          rotation = angleInput.value * Math.PI / 180;
+        }
+        new Fractal(canvas.canvas, { baseHue: 60, branches, spread, sides, maxLevel: 3 }).draw(points, 1, 0.25, rotation);
       });
       form.addEventListener('reset', function (e) {
         e.preventDefault();
@@ -278,9 +288,11 @@
         const branchesInput = form.querySelector('input[name="branches"]');
         const spreadInput = form.querySelector('input[name="spread"]');
         const sidesInput = form.querySelector('input[name="sides"]');
+        const angleInput = form.querySelector('input[name="angle"]');
         branchesInput.value = '';
         spreadInput.value = '';
         sidesInput.value = '';
+        angleInput.value = '';
         canvas.clear();
       });
       // new Fractal(canvas.canvas, { baseHue: 60 }).drawFractal({ x: 200, y: 200 }, 0.25);
