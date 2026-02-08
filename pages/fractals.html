@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Fractals - Canvas Drawing App</title>
+  <link rel="stylesheet" href="../css/styles.css">
+</head>
+
+<body>
+  <nav class="nav">
+    <div class="nav__container">
+      <a href="../index.html" class="nav__logo">
+        <span>Canvas Art</span>
+      </a>
+      <ul class="nav__links">
+        <li><a href="../index.html" class="nav__link">Home</a></li>
+        <li><a href="snowflakes.html" class="nav__link">Snowflakes</a></li>
+        <li><a href="fractals.html" class="nav__link nav__link--active">Fractals</a></li>
+        <li><a href="pixels.html" class="nav__link">Pixels</a></li>
+      </ul>
+    </div>
+  </nav>
+
+  <div class="info">
+    <div class="info__title">Fractal Trees</div>
+    <p>Generate organic-looking fractal trees. Adjust the angle, depth, and branch count to create different tree shapes.</p>
+  </div>
+
+  <canvas id="canvas"></canvas>
+
+  <div class="controls">
+    <form name="controls__form" class="controls__form">
+      <div class="controls__group">
+        <label class="controls__label">Angle</label>
+        <input class="controls__input" type="number" name="angle" placeholder="25" min="5" max="60" value="25">
+      </div>
+      <div class="controls__group">
+        <label class="controls__label">Depth</label>
+        <input class="controls__input" type="number" name="depth" placeholder="10" min="3" max="15" value="10">
+      </div>
+      <div class="controls__group">
+        <label class="controls__label">Length</label>
+        <input class="controls__input" type="number" name="length" placeholder="120" min="50" max="200" value="120">
+      </div>
+      <div class="controls__group">
+        <label class="controls__label">Scale</label>
+        <input class="controls__input" type="number" name="scale" placeholder="0.7" step="0.05" min="0.5" max="0.9" value="0.7">
+      </div>
+      <div class="controls__group">
+        <label class="controls__label">Hue</label>
+        <input class="controls__input" type="number" name="hue" placeholder="120" min="0" max="360" value="120">
+      </div>
+      <label class="controls__checkbox">
+        <input type="checkbox" name="animate">
+        <span>Animate</span>
+      </label>
+      <button class="controls__btn" type="submit">Draw</button>
+      <button class="controls__btn controls__btn--secondary" type="reset">Clear</button>
+    </form>
+  </div>
+
+  <script type="module">
+    import { Canvas } from '../js/canvas.js';
+    import { get, degToRad } from '../js/utils.js';
+
+    class FractalTree {
+      constructor(canvasRef, params = {}) {
+        if (!canvasRef || !(canvasRef instanceof HTMLCanvasElement)) {
+          throw Error('Canvas element required');
+        }
+        this.width = canvasRef.width;
+        this.height = canvasRef.height;
+        this.context = canvasRef.getContext('2d');
+
+        this.params = {
+          angle: get(params, 'angle', 25),
+          depth: get(params, 'depth', 10),
+          length: get(params, 'length', 120),
+          scale: get(params, 'scale', 0.7),
+          baseHue: get(params, 'baseHue', 120)
+        };
+      }
+
+      #drawBranch(x, y, length, angle, depth) {
+        if (depth === 0) return;
+
+        const endX = x + Math.cos(angle) * length;
+        const endY = y + Math.sin(angle) * length;
+
+        // Color gradient from trunk to leaves
+        const hueShift = ((this.params.depth - depth) / this.params.depth) * 60;
+        const lightness = 25 + ((this.params.depth - depth) / this.params.depth) * 35;
+        const saturation = 40 + ((this.params.depth - depth) / this.params.depth) * 40;
+        
+        this.context.strokeStyle = `hsl(${this.params.baseHue + hueShift}, ${saturation}%, ${lightness}%)`;
+        this.context.lineWidth = Math.max(1, depth * 1.5);
+
+        this.context.beginPath();
+        this.context.moveTo(x, y);
+        this.context.lineTo(endX, endY);
+        this.context.stroke();
+
+        const newLength = length * this.params.scale;
+        const angleRad = degToRad(this.params.angle);
+
+        // Right branch
+        this.#drawBranch(endX, endY, newLength, angle - angleRad, depth - 1);
+        // Left branch
+        this.#drawBranch(endX, endY, newLength, angle + angleRad, depth - 1);
+      }
+
+      draw(x, y) {
+        const startX = x || this.width / 2;
+        const startY = y || this.height - 50;
+        
+        this.context.lineCap = 'round';
+        this.context.shadowColor = `hsla(${this.params.baseHue}, 50%, 50%, 0.3)`;
+        this.context.shadowBlur = 5;
+        
+        // Draw trunk pointing up (-PI/2)
+        this.#drawBranch(startX, startY, this.params.length, -Math.PI / 2, this.params.depth);
+      }
+    }
+
+    window.addEventListener('load', () => {
+      const canvas = new Canvas('canvas');
+      const form = document.querySelector('form[name="controls__form"]');
+      let animationAngle = 0;
+      let isAnimating = false;
+
+      // Draw initial tree
+      canvas.clear();
+      new FractalTree(canvas.canvas, { baseHue: 120, depth: 10 }).draw();
+
+      const animate = () => {
+        if (!isAnimating) return;
+
+        canvas.context.fillStyle = 'rgba(10, 10, 15, 1)';
+        canvas.context.fillRect(0, 0, canvas.width, canvas.height);
+
+        animationAngle += 0.5;
+        const dynamicAngle = 20 + Math.sin(animationAngle * 0.05) * 15;
+        
+        new FractalTree(canvas.canvas, {
+          baseHue: (animationAngle * 0.5) % 360,
+          depth: 10,
+          angle: dynamicAngle
+        }).draw();
+
+        requestAnimationFrame(animate);
+      };
+
+      form.addEventListener('submit', (e) => {
+        e.preventDefault();
+        
+        const data = new FormData(form);
+        const angle = parseInt(data.get('angle')) || 25;
+        const depth = parseInt(data.get('depth')) || 10;
+        const length = parseInt(data.get('length')) || 120;
+        const scale = parseFloat(data.get('scale')) || 0.7;
+        const hue = parseInt(data.get('hue')) || 120;
+        const shouldAnimate = form.querySelector('input[name="animate"]').checked;
+
+        if (shouldAnimate) {
+          isAnimating = true;
+          animate();
+        } else {
+          isAnimating = false;
+          canvas.context.fillStyle = 'rgba(10, 10, 15, 1)';
+          canvas.context.fillRect(0, 0, canvas.width, canvas.height);
+          
+          new FractalTree(canvas.canvas, {
+            angle,
+            depth,
+            length,
+            scale,
+            baseHue: hue
+          }).draw();
+        }
+      });
+
+      form.addEventListener('reset', (e) => {
+        e.preventDefault();
+        isAnimating = false;
+        canvas.clear();
+        form.reset();
+      });
+
+      window.addEventListener('resize', () => {
+        canvas.resize();
+        if (!isAnimating) {
+          new FractalTree(canvas.canvas, { baseHue: 120, depth: 10 }).draw();
+        }
+      });
+    });
+  </script>
+</body>
+
+</html>

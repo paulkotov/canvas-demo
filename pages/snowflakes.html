@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Snowflakes - Canvas Drawing App</title>
+  <link rel="stylesheet" href="../css/styles.css">
+</head>
+
+<body>
+  <nav class="nav">
+    <div class="nav__container">
+      <a href="../index.html" class="nav__logo">
+        <span>Canvas Art</span>
+      </a>
+      <ul class="nav__links">
+        <li><a href="../index.html" class="nav__link">Home</a></li>
+        <li><a href="snowflakes.html" class="nav__link nav__link--active">Snowflakes</a></li>
+        <li><a href="fractals.html" class="nav__link">Fractals</a></li>
+        <li><a href="pixels.html" class="nav__link">Pixels</a></li>
+      </ul>
+    </div>
+  </nav>
+
+  <div class="info">
+    <div class="info__title">Snowflakes</div>
+    <p>Create beautiful symmetric snowflake patterns. Adjust branches, spread angle, and sides to generate unique designs.</p>
+  </div>
+
+  <canvas id="canvas"></canvas>
+
+  <div class="controls">
+    <form name="controls__form" class="controls__form">
+      <div class="controls__group">
+        <label class="controls__label">Branches</label>
+        <input class="controls__input" type="number" name="branches" placeholder="2" min="1" max="5" value="2">
+      </div>
+      <div class="controls__group">
+        <label class="controls__label">Spread</label>
+        <input class="controls__input" type="number" name="spread" placeholder="0.5" step="0.1" min="0.1" max="1.5" value="0.5">
+      </div>
+      <div class="controls__group">
+        <label class="controls__label">Sides</label>
+        <input class="controls__input" type="number" name="sides" placeholder="6" min="3" max="12" value="6">
+      </div>
+      <div class="controls__group">
+        <label class="controls__label">Size</label>
+        <input class="controls__input" type="number" name="size" placeholder="200" min="50" max="400" value="200">
+      </div>
+      <div class="controls__group">
+        <label class="controls__label">Hue</label>
+        <input class="controls__input" type="number" name="hue" placeholder="200" min="0" max="360" value="200">
+      </div>
+      <label class="controls__checkbox">
+        <input type="checkbox" name="randomInsert">
+        <span>Random Position</span>
+      </label>
+      <button class="controls__btn" type="submit">Draw</button>
+      <button class="controls__btn controls__btn--secondary" type="reset">Clear</button>
+    </form>
+  </div>
+
+  <script type="module">
+    import { Canvas } from '../js/canvas.js';
+    import { get } from '../js/utils.js';
+
+    class Snowflake {
+      constructor(canvasRef, params = {}) {
+        if (!canvasRef || !(canvasRef instanceof HTMLCanvasElement)) {
+          throw Error('Canvas element required');
+        }
+        this.width = canvasRef.width;
+        this.height = canvasRef.height;
+
+        const ctx = canvasRef.getContext('2d');
+        ctx.lineWidth = 8;
+        ctx.lineCap = 'round';
+        ctx.shadowColor = 'rgba(100, 150, 255, 0.5)';
+        ctx.shadowOffsetX = 0;
+        ctx.shadowOffsetY = 0;
+        ctx.shadowBlur = 15;
+        this.context = ctx;
+
+        this.params = {
+          size: get(params, 'size', 200),
+          sides: get(params, 'sides', 6),
+          maxLevel: get(params, 'maxLevel', 3),
+          scale: get(params, 'scale', 0.6),
+          spread: get(params, 'spread', 0.5),
+          branches: get(params, 'branches', 2),
+          baseHue: get(params, 'baseHue', 200)
+        };
+      }
+
+      #drawBranch(level) {
+        if (level > this.params.maxLevel) return;
+
+        const hueShift = (level / this.params.maxLevel) * 60;
+        const lightness = 50 + (level / this.params.maxLevel) * 30;
+        this.context.strokeStyle = `hsl(${this.params.baseHue + hueShift}, 80%, ${lightness}%)`;
+        this.context.lineWidth = Math.max(2, 8 - level * 2);
+
+        this.context.beginPath();
+        this.context.moveTo(0, 0);
+        this.context.lineTo(this.params.size, 0);
+        this.context.stroke();
+
+        for (let i = 0; i < this.params.branches; i++) {
+          const offset = this.params.size - (this.params.size / this.params.branches) * i;
+          
+          // Right branch
+          this.context.save();
+          this.context.translate(offset, 0);
+          this.context.rotate(this.params.spread);
+          this.context.scale(this.params.scale, this.params.scale);
+          this.#drawBranch(level + 1);
+          this.context.restore();
+
+          // Left branch
+          this.context.save();
+          this.context.translate(offset, 0);
+          this.context.rotate(-this.params.spread);
+          this.context.scale(this.params.scale, this.params.scale);
+          this.#drawBranch(level + 1);
+          this.context.restore();
+        }
+      }
+
+      draw(position, scale = 1, rotation = 0) {
+        this.context.save();
+        this.context.translate(
+          get(position, 'x', this.width / 2),
+          get(position, 'y', this.height / 2)
+        );
+        this.context.scale(scale, scale);
+        this.context.rotate(rotation);
+
+        for (let i = 0; i < this.params.sides; i++) {
+          this.context.rotate((Math.PI * 2) / this.params.sides);
+          this.#drawBranch(0);
+        }
+        this.context.restore();
+      }
+    }
+
+    window.addEventListener('load', () => {
+      const canvas = new Canvas('canvas');
+      const form = document.querySelector('form[name="controls__form"]');
+
+      // Draw initial snowflake
+      new Snowflake(canvas.canvas, { baseHue: 200, sides: 6 }).draw();
+
+      form.addEventListener('submit', (e) => {
+        e.preventDefault();
+        
+        const data = new FormData(form);
+        const branches = parseInt(data.get('branches')) || 2;
+        const spread = parseFloat(data.get('spread')) || 0.5;
+        const sides = parseInt(data.get('sides')) || 6;
+        const size = parseInt(data.get('size')) || 200;
+        const hue = parseInt(data.get('hue')) || 200;
+        const isRandomInsert = form.querySelector('input[name="randomInsert"]').checked;
+
+        let position;
+        if (isRandomInsert) {
+          position = {
+            x: Math.random() * canvas.width,
+            y: Math.random() * canvas.height
+          };
+        }
+
+        new Snowflake(canvas.canvas, {
+          branches,
+          spread,
+          sides,
+          size,
+          baseHue: hue,
+          maxLevel: 3
+        }).draw(position);
+      });
+
+      form.addEventListener('reset', (e) => {
+        e.preventDefault();
+        canvas.clear();
+        form.reset();
+      });
+
+      window.addEventListener('resize', () => canvas.resize());
+    });
+  </script>
+</body>
+
+</html>

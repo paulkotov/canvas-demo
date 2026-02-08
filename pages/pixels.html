@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pixel Animations - Canvas Drawing App</title>
+  <link rel="stylesheet" href="../css/styles.css">
+</head>
+
+<body>
+  <nav class="nav">
+    <div class="nav__container">
+      <a href="../index.html" class="nav__logo">
+        <span>Canvas Art</span>
+      </a>
+      <ul class="nav__links">
+        <li><a href="../index.html" class="nav__link">Home</a></li>
+        <li><a href="snowflakes.html" class="nav__link">Snowflakes</a></li>
+        <li><a href="fractals.html" class="nav__link">Fractals</a></li>
+        <li><a href="pixels.html" class="nav__link nav__link--active">Pixels</a></li>
+      </ul>
+    </div>
+  </nav>
+
+  <div class="info">
+    <div class="info__title">Pixel Animations</div>
+    <p>Watch dancing pixels that flicker and pulse. Move your mouse to interact with the particles!</p>
+  </div>
+
+  <canvas id="canvas"></canvas>
+
+  <div class="controls">
+    <form name="controls__form" class="controls__form">
+      <div class="controls__group">
+        <label class="controls__label">Pixel Count</label>
+        <input class="controls__input" type="number" name="count" placeholder="200" min="50" max="500" value="200">
+      </div>
+      <div class="controls__group">
+        <label class="controls__label">Max Size</label>
+        <input class="controls__input" type="number" name="size" placeholder="4" min="2" max="10" value="4">
+      </div>
+      <div class="controls__group">
+        <label class="controls__label">Speed</label>
+        <input class="controls__input" type="number" name="speed" placeholder="1" step="0.1" min="0.1" max="3" value="1">
+      </div>
+      <div class="controls__group">
+        <label class="controls__label">Hue</label>
+        <input class="controls__input" type="number" name="hue" placeholder="280" min="0" max="360" value="280">
+      </div>
+      <label class="controls__checkbox">
+        <input type="checkbox" name="rainbow" checked>
+        <span>Rainbow Mode</span>
+      </label>
+      <button class="controls__btn" type="submit">Apply</button>
+      <button class="controls__btn controls__btn--secondary" type="reset">Reset</button>
+    </form>
+  </div>
+
+  <script type="module">
+    import { Canvas } from '../js/canvas.js';
+    import { rand, randInt, hslToString, distance } from '../js/utils.js';
+
+    class Pixel {
+      constructor(x, y, params = {}) {
+        this.x = x;
+        this.y = y;
+        this.originX = x;
+        this.originY = y;
+
+        this.hue = params.hue || randInt(0, 360);
+        this.rainbow = params.rainbow !== false;
+        this.speed = (params.speed || 1) * rand(0.5, 1.5);
+        this.maxSize = params.size || rand(2, 4);
+
+        this.size = 0;
+        this.targetSize = this.maxSize;
+        this.minSize = this.maxSize * 0.3;
+        this.sizeStep = rand(0.02, 0.08);
+
+        this.pulsePhase = rand(0, Math.PI * 2);
+        this.pulseSpeed = rand(0.02, 0.05);
+
+        this.vx = 0;
+        this.vy = 0;
+        this.friction = 0.95;
+      }
+
+      update(mouseX, mouseY, isMouseActive) {
+        // Pulse animation
+        this.pulsePhase += this.pulseSpeed * this.speed;
+        const pulseFactor = 0.5 + Math.sin(this.pulsePhase) * 0.5;
+        this.targetSize = this.minSize + (this.maxSize - this.minSize) * pulseFactor;
+
+        // Smooth size transition
+        this.size += (this.targetSize - this.size) * 0.1;
+
+        // Mouse interaction
+        if (isMouseActive && mouseX !== null && mouseY !== null) {
+          const dist = distance(this.x, this.y, mouseX, mouseY);
+          const maxDist = 150;
+
+          if (dist < maxDist) {
+            const force = (maxDist - dist) / maxDist;
+            const angle = Math.atan2(this.y - mouseY, this.x - mouseX);
+            this.vx += Math.cos(angle) * force * 2;
+            this.vy += Math.sin(angle) * force * 2;
+          }
+        }
+
+        // Return to origin
+        const dx = this.originX - this.x;
+        const dy = this.originY - this.y;
+        this.vx += dx * 0.02;
+        this.vy += dy * 0.02;
+
+        // Apply velocity
+        this.vx *= this.friction;
+        this.vy *= this.friction;
+        this.x += this.vx;
+        this.y += this.vy;
+
+        // Rainbow hue shift
+        if (this.rainbow) {
+          this.hue = (this.hue + 0.5) % 360;
+        }
+      }
+
+      draw(ctx) {
+        const alpha = 0.6 + Math.sin(this.pulsePhase) * 0.4;
+        ctx.fillStyle = hslToString(this.hue, 80, 60, alpha);
+        
+        ctx.beginPath();
+        ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Glow effect
+        ctx.shadowColor = hslToString(this.hue, 100, 50, 0.5);
+        ctx.shadowBlur = this.size * 2;
+      }
+    }
+
+    class PixelGrid {
+      constructor(canvas, params = {}) {
+        this.canvas = canvas;
+        this.ctx = canvas.context;
+        this.pixels = [];
+        this.params = params;
+        this.mouseX = null;
+        this.mouseY = null;
+        this.isMouseActive = false;
+
+        this.init(params);
+        this.setupMouseEvents();
+      }
+
+      init(params = {}) {
+        const count = params.count || 200;
+        const baseHue = params.hue || 280;
+        const rainbow = params.rainbow !== false;
+        const size = params.size || 4;
+        const speed = params.speed || 1;
+
+        this.pixels = [];
+
+        // Create grid pattern
+        const cols = Math.ceil(Math.sqrt(count * (this.canvas.width / this.canvas.height)));
+        const rows = Math.ceil(count / cols);
+        const cellWidth = this.canvas.width / cols;
+        const cellHeight = this.canvas.height / rows;
+
+        for (let i = 0; i < count; i++) {
+          const col = i % cols;
+          const row = Math.floor(i / cols);
+          const x = cellWidth * col + cellWidth / 2 + rand(-20, 20);
+          const y = cellHeight * row + cellHeight / 2 + rand(-20, 20);
+
+          this.pixels.push(new Pixel(x, y, {
+            hue: rainbow ? randInt(0, 360) : baseHue + randInt(-20, 20),
+            rainbow,
+            size: rand(size * 0.5, size),
+            speed
+          }));
+        }
+      }
+
+      setupMouseEvents() {
+        this.canvas.canvas.addEventListener('mousemove', (e) => {
+          const rect = this.canvas.canvas.getBoundingClientRect();
+          this.mouseX = e.clientX - rect.left;
+          this.mouseY = e.clientY - rect.top;
+          this.isMouseActive = true;
+        });
+
+        this.canvas.canvas.addEventListener('mouseleave', () => {
+          this.isMouseActive = false;
+        });
+      }
+
+      update() {
+        this.pixels.forEach(pixel => {
+          pixel.update(this.mouseX, this.mouseY, this.isMouseActive);
+        });
+      }
+
+      draw() {
+        this.ctx.shadowBlur = 0;
+        this.pixels.forEach(pixel => pixel.draw(this.ctx));
+      }
+    }
+
+    window.addEventListener('load', () => {
+      const canvas = new Canvas('canvas');
+      const form = document.querySelector('form[name="controls__form"]');
+      
+      let pixelGrid = new PixelGrid(canvas, {
+        count: 200,
+        rainbow: true,
+        size: 4,
+        speed: 1
+      });
+
+      canvas.startAnimation(() => {
+        canvas.context.fillStyle = 'rgba(10, 10, 15, 0.15)';
+        canvas.context.fillRect(0, 0, canvas.width, canvas.height);
+        
+        pixelGrid.update();
+        pixelGrid.draw();
+      });
+
+      form.addEventListener('submit', (e) => {
+        e.preventDefault();
+        
+        const data = new FormData(form);
+        const count = parseInt(data.get('count')) || 200;
+        const size = parseInt(data.get('size')) || 4;
+        const speed = parseFloat(data.get('speed')) || 1;
+        const hue = parseInt(data.get('hue')) || 280;
+        const rainbow = form.querySelector('input[name="rainbow"]').checked;
+
+        pixelGrid.init({ count, size, speed, hue, rainbow });
+      });
+
+      form.addEventListener('reset', (e) => {
+        e.preventDefault();
+        form.reset();
+        pixelGrid.init({
+          count: 200,
+          rainbow: true,
+          size: 4,
+          speed: 1
+        });
+      });
+
+      window.addEventListener('resize', () => {
+        canvas.resize();
+        pixelGrid.init(pixelGrid.params);
+      });
+    });
+  </script>
+</body>
+
+</html>
