@@ -1,9 +1,11 @@
+<!DOCTYPE html>
 <html lang="en">
 
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Document</title>
+  <title>Snowflakes (Legacy) - Canvas Drawing App</title>
+  <link rel="stylesheet" href="css/styles.css">
 </head>
 
 <body>
@@ -64,115 +66,39 @@
   </style>
   <div class="controls__container">
     <form name="controls__form" class="controls__form">
-      <input class="controls__form_input" type="number" name="branches" placeholder="branches">
-      <input class="controls__form_input" type="decimal" name="spread" placeholder="spread">
-      <!-- TODO: change input to rays -->
-      <input class="controls__form_input" type="number" name="sides" placeholder="sides">
-      <input class="controls__form_input" type="number" name="scale" placeholder="scale">
-      <input class="controls__form_input" type="number" name="angle" placeholder="angle" min="0" max="180">
-      <button class="controls__form_button" type="submit" name="generate">Draw</button>
-      <button class="controls__form_button" type="reset" name="reset">Reset</button>
-
-      <div class="controls__form_checkbox">
-        <label for="randomInsert">Random insert</label>
-        <input class="controls__form_input" type="checkbox" name="randomInsert" placeholder="size">
+      <div class="controls__group">
+        <label class="controls__label">Branches</label>
+        <input class="controls__input" type="number" name="branches" placeholder="2" min="1" max="5" value="2">
       </div>
-      <!-- TODO: add checkbox for symmetric fractal -->
+      <div class="controls__group">
+        <label class="controls__label">Spread</label>
+        <input class="controls__input" type="number" name="spread" placeholder="0.5" step="0.1" min="0.1" max="1.5"
+          value="0.5">
+      </div>
+      <div class="controls__group">
+        <label class="controls__label">Sides</label>
+        <input class="controls__input" type="number" name="sides" placeholder="5" min="3" max="12" value="5">
+      </div>
+      <div class="controls__group">
+        <label class="controls__label">Scale</label>
+        <input class="controls__input" type="number" name="scale" placeholder="0.7" step="0.1" min="0.3" max="1"
+          value="0.7">
+      </div>
+      <div class="controls__group">
+        <label class="controls__label">Angle</label>
+        <input class="controls__input" type="number" name="angle" placeholder="0" min="0" max="180" value="0">
+      </div>
+      <label class="controls__checkbox">
+        <input type="checkbox" name="randomInsert">
+        <span>Random Position</span>
+      </label>
+      <button class="controls__btn" type="submit">Draw</button>
+      <button class="controls__btn controls__btn--secondary" type="reset">Clear</button>
     </form>
-
   </div>
-  <canvas id="canvas"></canvas>
-  <!-- <canvas id="animated-canvas"></canvas> -->
-  <script>
-    const get = (obj, key, defaultValue) => {
-      if (!obj) {
-        return defaultValue;
-      }
-      if (key in obj) {
-        return obj[key];
-      }
-      return defaultValue;
-    };
-
-    function generateId() {
-      return '_' + Math.random().toString(36).substr(2, 9);
-    }
-
-    class Canvas {
-      constructor(id, params = {}) {
-        if (!id) {
-          this.#createCanvas(params);
-        } else {
-          this.#getCanvas(id, params);
-        }
-        this.elements = [];
-        this.originX = 0;
-        this.originY = 0;
-        this.elements = [];
-      }
-
-      #createCanvas(params) {
-        const canvas = document.createElement('canvas');
-        document.body.appendChild(canvas);
-        canvas.width = get(params, 'width', window.innerWidth);
-        canvas.height = get(params, 'height', window.innerHeight);
-        this.canvas = canvas;
-        this.context = canvas.getContext('2d');
-      }
-
-      #getCanvas(id, params) {
-        const canvas = document.getElementById(id);
-        if (!canvas) {
-          this.#createCanvas(params);
-        } else {
-          canvas.width = get(params, 'width', window.innerWidth);
-          canvas.height = get(params, 'height', window.innerHeight);
-          this.canvas = canvas;
-          this.context = canvas.getContext('2d');
-        }
-      }
-
-      createElement(type, params) {
-        let element;
-        switch (type) {
-          case 'line':
-            element = new Line(params);
-            break;
-          case 'circle':
-            element = new Circle(params);
-            break;
-          case 'arc':
-            element = new Arc(params);
-            break;
-          default:
-            throw new Error('Unsupported element type');
-        }
-        this.elements.push(element);
-        return element;
-      }
-
-      removeElement(element) {
-        this.elements = this.elements.filter(el => el !== element);
-      }
-
-      getElementById(id) {
-        return this.elements.find(el => el.id === id);
-      }
-
-      appendChild(element) {
-        this.elements.push(element);
-        element.draw(this.context);
-      }
-
-      draw() {
-        this.context.clearRect(0, 0, this.canvas.width, this.canvas.height);
-        this.elements.forEach(element => element.draw(this.context));
-      }
-
-      clear() {
-        this.context.clearRect(0, 0, this.canvas.width, this.canvas.height);
-      }
-    }
+  <script type="module">
+    import { Canvas } from './js/canvas.js';
+    import { get } from './js/utils.js';
 
     class Fractal {
       context = null;
@@ -188,10 +114,10 @@
         const ctx = canvasRef.getContext('2d');
         ctx.lineWidth = 10;
         ctx.lineCap = 'round';
-        ctx.shadowColor = 'rgba(0, 0, 0, 0.7)';
-        ctx.shadowOffsetX = 10;
-        ctx.shadowOffsetY = 5;
-        ctx.shadowBlur = 10;
+        ctx.shadowColor = 'rgba(100, 150, 255, 0.5)';
+        ctx.shadowOffsetX = 0;
+        ctx.shadowOffsetY = 0;
+        ctx.shadowBlur = 15;
         this.context = ctx;
 
         this.params.size = get(fractalParams, 'size', 300);
@@ -200,7 +126,7 @@
         this.params.scale = get(fractalParams, 'scale', 0.7);
         this.params.spread = get(fractalParams, 'spread', 0.5);
         this.params.branches = get(fractalParams, 'branches', 2);
-        this.params.baseHue = get(fractalParams, 'baseHue', 200); // Starting hue (0-360)
+        this.params.baseHue = get(fractalParams, 'baseHue', 200);
       }
 
       #drawBranch(level) {
@@ -208,8 +134,7 @@
         if (level === undefined || level > this.params.maxLevel) {
           return;
         }
-        // Calculate hue based on level (shifts color per level)
-        const hueShift = (level / this.params.maxLevel) * 120; // 0 to 120 degree shift
+        const hueShift = (level / this.params.maxLevel) * 120;
         this.context.strokeStyle = `hsl(${this.params.baseHue + hueShift}, 100%, 50%)`;
 
         this.context.beginPath();
@@ -240,11 +165,11 @@
           get(position, 'x', this.width / 2),
           get(position, 'y', this.height / 2)
         );
-        this.context.scale(scale || 1, scale || 1);
+        this.context.scale(scale || this.params.scale || 1);
         this.context.rotate(rotate || 0);
 
-        for (let i = 0; i < this.params.sides; i++) {
-          this.context.rotate((Math.PI * 2) / this.params.sides);
+        for (let i = 0; i < this.params.branches; i++) {
+          this.context.rotate((Math.PI * 2) / this.params.branches);
           this.#drawBranch(0);
         }
         this.context.restore();
@@ -252,16 +177,20 @@
     }
 
     window.addEventListener('load', function () {
-
       const canvas = new Canvas('canvas');
       const form = document.querySelector('form[name="controls__form"]');
-      // console.log(form);
+
+      // Draw initial fractal
+      // new Fractal(canvas.canvas, { baseHue: 60, sides: 5, maxLevel: 3 }).draw();
+
       form.addEventListener('submit', function (e) {
         e.preventDefault();
         const branchesInput = form.querySelector('input[name="branches"]');
         const spreadInput = form.querySelector('input[name="spread"]');
         const sidesInput = form.querySelector('input[name="sides"]');
         const angleInput = form.querySelector('input[name="angle"]');
+        const scaleInput = form.querySelector('input[name="scale"]');
+        // const 
         const branches = branchesInput.value;
         const spread = spreadInput.value;
         const sides = sidesInput.value;
@@ -269,18 +198,33 @@
         const isRandomInsert = randomInsertInput.checked;
         let points = undefined;
         // need save
+        let position = {
+          x: canvas.canvas.width / 2,
+          y: canvas.canvas.height / 2
+        }
         if (isRandomInsert) {
-          points = {
+          position = {
             x: Math.random() * canvas.canvas.width,
             y: Math.random() * canvas.canvas.height
           };
         }
-        let rotation = 0;
-        if (angleInput.value) {
-          rotation = angleInput.value * Math.PI / 180;
-        }
-        new Fractal(canvas.canvas, { baseHue: 60, branches, spread, sides, maxLevel: 3 }).draw(points, 1, 0.25, rotation);
+        // let rotation = 0;
+        // if (angleInput.value) {
+        //   rotation = angleInput.value * Math.PI / 180;
+        // }
+        // new Fractal(canvas.canvas, { baseHue: 60, branches, spread, sides, maxLevel: 3 }).draw(points, 1, 0.25, rotation);
+
+        const rotation = angleInput * Math.PI / 180;
+        new Fractal(canvas.canvas, {
+          baseHue: 60,
+          branches,
+          spread,
+          sides,
+          scale: scaleInput.value,
+          maxLevel: 3
+        }).draw(position, 1, rotation);
       });
+
       form.addEventListener('reset', function (e) {
         e.preventDefault();
         // get form controls
@@ -294,11 +238,11 @@
         sidesInput.value = '';
         angleInput.value = '';
         canvas.clear();
+        form.reset();
       });
-      // new Fractal(canvas.canvas, { baseHue: 60 }).drawFractal({ x: 200, y: 200 }, 0.25);
-      // new Fractal(canvas.canvas, { size: 150, sides: 5, maxLevel: 3, baseHue: 0 }).drawFractal(undefined, 1, 0.2);
-    });
 
+      window.addEventListener('resize', () => canvas.resize());
+    });
   </script>
 </body>
 
