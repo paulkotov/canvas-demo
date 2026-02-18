@@ -209,13 +209,8 @@
             y: Math.random() * canvas.canvas.height
           };
         }
-        // let rotation = 0;
-        // if (angleInput.value) {
-        //   rotation = angleInput.value * Math.PI / 180;
-        // }
-        // new Fractal(canvas.canvas, { baseHue: 60, branches, spread, sides, maxLevel: 3 }).draw(points, 1, 0.25, rotation);
 
-        const rotation = angleInput * Math.PI / 180;
+        const rotation = - angleInput.value * Math.PI / 180;
         new Fractal(canvas.canvas, {
           baseHue: 60,
           branches,
