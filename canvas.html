@@ -56,13 +56,6 @@
       min-width: 100px;
     }
 
-    .controls__form_checkbox {
-      display: flex;
-      flex-direction: row;
-      align-items: center;
-      gap: 8px;
-      color: #fff;
-    }
   </style>
   <div class="controls__container">
     <form name="controls__form" class="controls__form">
@@ -88,10 +81,7 @@
         <label class="controls__label">Angle</label>
         <input class="controls__input" type="number" name="angle" placeholder="0" min="0" max="180" value="0">
       </div>
-      <label class="controls__checkbox">
-        <input type="checkbox" name="randomInsert">
-        <span>Random Position</span>
-      </label>
+      <button class="controls__btn" type="button" id="randomFractal">Random Fractal</button>
       <button class="controls__btn" type="submit">Draw</button>
       <button class="controls__btn controls__btn--secondary" type="reset">Clear</button>
     </form>
@@ -191,26 +181,14 @@
         const sidesInput = form.querySelector('input[name="sides"]');
         const angleInput = form.querySelector('input[name="angle"]');
         const scaleInput = form.querySelector('input[name="scale"]');
-        // const 
         const branches = branchesInput.value;
         const spread = spreadInput.value;
         const sides = sidesInput.value;
-        const randomInsertInput = form.querySelector('input[name="randomInsert"]');
-        const isRandomInsert = randomInsertInput.checked;
-        let points = undefined;
-        // need save
-        let position = {
+        const position = {
           x: canvas.canvas.width / 2,
           y: canvas.canvas.height / 2
-        }
-        if (isRandomInsert) {
-          position = {
-            x: Math.random() * canvas.canvas.width,
-            y: Math.random() * canvas.canvas.height
-          };
-        }
-
-        const rotation = - angleInput.value * Math.PI / 180;
+        };
+        const rotation = -angleInput.value * Math.PI / 180;
         new Fractal(canvas.canvas, {
           baseHue: 60,
           branches,
@@ -237,6 +215,36 @@
         scaleInput.value = '';
         canvas.clear();
         form.reset();
+      });
+
+      document.getElementById('randomFractal').addEventListener('click', function () {
+        const randomBranches = Math.floor(Math.random() * 5) + 1;
+        const randomSpread = +(Math.random() * 1.4 + 0.1).toFixed(1);
+        const randomSides = Math.floor(Math.random() * 10) + 3;
+        const randomScale = +(Math.random() * 0.7 + 0.3).toFixed(1);
+        const randomAngle = Math.floor(Math.random() * 181);
+        const randomHue = Math.floor(Math.random() * 360);
+
+        form.querySelector('input[name="branches"]').value = randomBranches;
+        form.querySelector('input[name="spread"]').value = randomSpread;
+        form.querySelector('input[name="sides"]').value = randomSides;
+        form.querySelector('input[name="scale"]').value = randomScale;
+        form.querySelector('input[name="angle"]').value = randomAngle;
+
+        canvas.clear();
+        const position = {
+          x: canvas.canvas.width / 2,
+          y: canvas.canvas.height / 2
+        };
+        const rotation = -randomAngle * Math.PI / 180;
+        new Fractal(canvas.canvas, {
+          baseHue: randomHue,
+          branches: randomBranches,
+          spread: randomSpread,
+          sides: randomSides,
+          scale: randomScale,
+          maxLevel: 3
+        }).draw(position, 1, rotation);
       });
 
       window.addEventListener('resize', () => canvas.resize());
