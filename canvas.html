@@ -82,7 +82,7 @@
         <input class="controls__input" type="number" name="angle" placeholder="0" min="0" max="180" value="0">
       </div>
       <button class="controls__btn" type="button" id="randomFractal">Random Fractal</button>
-      <button class="controls__btn" type="submit">Draw</button>
+      <button class="controls__btn" type="submit" id="drawBtn">Draw</button>
       <button class="controls__btn controls__btn--secondary" type="reset">Clear</button>
     </form>
   </div>
@@ -170,9 +170,16 @@
     window.addEventListener('load', function () {
       const canvas = new Canvas('canvas');
       const form = document.querySelector('form[name="controls__form"]');
+      const drawBtn = document.getElementById('drawBtn');
+      const inputs = form.querySelectorAll('input[type="number"]');
 
-      // Draw initial fractal
-      // new Fractal(canvas.canvas, { baseHue: 60, sides: 5, maxLevel: 3 }).draw();
+      function updateDrawButton() {
+        const allFilled = Array.from(inputs).every(input => input.value !== '');
+        drawBtn.disabled = !allFilled;
+      }
+
+      inputs.forEach(input => input.addEventListener('input', updateDrawButton));
+      updateDrawButton();
 
       form.addEventListener('submit', function (e) {
         e.preventDefault();
@@ -202,7 +209,6 @@
       form.addEventListener('reset', function (e) {
         e.preventDefault();
         // get form controls
-        // const form = document.querySelector('form[name="controls__form"]');
         const branchesInput = form.querySelector('input[name="branches"]');
         const spreadInput = form.querySelector('input[name="spread"]');
         const sidesInput = form.querySelector('input[name="sides"]');
@@ -214,7 +220,7 @@
         angleInput.value = '';
         scaleInput.value = '';
         canvas.clear();
-        form.reset();
+        updateDrawButton();
       });
 
       document.getElementById('randomFractal').addEventListener('click', function () {
@@ -230,6 +236,7 @@
         form.querySelector('input[name="sides"]').value = randomSides;
         form.querySelector('input[name="scale"]').value = randomScale;
         form.querySelector('input[name="angle"]').value = randomAngle;
+        updateDrawButton();
 
         canvas.clear();
         const position = {
