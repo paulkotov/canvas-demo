@@ -55,7 +55,6 @@
     .controls__form_button {
       min-width: 100px;
     }
-
   </style>
   <div class="controls__container">
     <form name="controls__form" class="controls__form">
@@ -167,6 +166,18 @@
       }
     }
 
+    const getRandomFractalParams = () => {
+      return {
+        baseHue: Math.floor(Math.random() * 360),
+        branches: Math.floor(Math.random() * 5) + 1,
+        spread: +(Math.random() * 1.4 + 0.1).toFixed(1),
+        sides: Math.floor(Math.random() * 10) + 3,
+        scale: +(Math.random() * 0.7 + 0.3).toFixed(1),
+        angle: Math.floor(Math.random() * 181),
+        randomHue: Math.floor(Math.random() * 360)
+      };
+    };
+
     window.addEventListener('load', function () {
       const canvas = new Canvas('canvas');
       const form = document.querySelector('form[name="controls__form"]');
@@ -224,18 +235,12 @@
       });
 
       document.getElementById('randomFractal').addEventListener('click', function () {
-        const randomBranches = Math.floor(Math.random() * 5) + 1;
-        const randomSpread = +(Math.random() * 1.4 + 0.1).toFixed(1);
-        const randomSides = Math.floor(Math.random() * 10) + 3;
-        const randomScale = +(Math.random() * 0.7 + 0.3).toFixed(1);
-        const randomAngle = Math.floor(Math.random() * 181);
-        const randomHue = Math.floor(Math.random() * 360);
-
-        form.querySelector('input[name="branches"]').value = randomBranches;
-        form.querySelector('input[name="spread"]').value = randomSpread;
-        form.querySelector('input[name="sides"]').value = randomSides;
-        form.querySelector('input[name="scale"]').value = randomScale;
-        form.querySelector('input[name="angle"]').value = randomAngle;
+        const randomParams = getRandomFractalParams();
+        form.querySelector('input[name="branches"]').value = randomParams.branches;
+        form.querySelector('input[name="spread"]').value = randomParams.spread;
+        form.querySelector('input[name="sides"]').value = randomParams.sides;
+        form.querySelector('input[name="scale"]').value = randomParams.scale;
+        form.querySelector('input[name="angle"]').value = randomParams.angle;
         updateDrawButton();
 
         canvas.clear();
@@ -243,13 +248,13 @@
           x: canvas.canvas.width / 2,
           y: canvas.canvas.height / 2
         };
-        const rotation = -randomAngle * Math.PI / 180;
+        const rotation = -randomParams.angle * Math.PI / 180;
         new Fractal(canvas.canvas, {
-          baseHue: randomHue,
-          branches: randomBranches,
-          spread: randomSpread,
-          sides: randomSides,
-          scale: randomScale,
+          baseHue: randomParams.baseHue,
+          branches: randomParams.branches,
+          spread: randomParams.spread,
+          sides: randomParams.sides,
+          scale: randomParams.scale,
           maxLevel: 3
         }).draw(position, 1, rotation);
       });
