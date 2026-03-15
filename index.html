@@ -1,53 +1,122 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 
 <head>
-  <meta charset="UTF-8" />
-  <link rel="icon" type="image/svg+xml" href="/vite.svg" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Canvas experiments</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Canvas Drawing App</title>
+  <link rel="stylesheet" href="css/styles.css">
 </head>
 
 <body>
-  <style>
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
+  <nav class="nav">
+    <div class="nav__container">
+      <a href="index.html" class="nav__logo">
+        <span>Canvas Art</span>
+      </a>
+      <ul class="nav__links">
+        <li><a href="index.html" class="nav__link nav__link--active">Home</a></li>
+        <li><a href="pages/snowflakes.html" class="nav__link">Snowflakes</a></li>
+        <li><a href="pages/fractals.html" class="nav__link">Fractals</a></li>
+        <li><a href="pages/pixels.html" class="nav__link">Pixels</a></li>
+      </ul>
+    </div>
+  </nav>
 
-    #canvas {
-      background-color: black;
-      position: absolute;
-      top: 0;
-      left: 0;
-      z-index: 1;
-      width: 100%;
-      height: 100%;
-      display: block;
-    }
+  <main class="home">
+    <h1 class="home__title">Canvas Drawing App</h1>
+    <p class="home__subtitle">Explore beautiful patterns and animations</p>
 
-    .controls__container {
-      position: absolute;
-      bottom: 0;
-      z-index: 10;
-    }
+    <div class="home__grid">
+      <a href="pages/snowflakes.html" class="home__card">
+        <div class="home__card-icon">❄️</div>
+        <h2 class="home__card-title">Snowflakes</h2>
+        <p class="home__card-desc">
+          Generate beautiful fractal snowflakes with customizable branches, spread, and colors.
+        </p>
+      </a>
 
-    .controls__form {
-      display: flex;
-      flex-direction: row;
-      justify-content: space-between;
-    }
-  </style>
+      <a href="pages/fractals.html" class="home__card">
+        <div class="home__card-icon">🌿</div>
+        <h2 class="home__card-title">Fractals</h2>
+        <p class="home__card-desc">
+          Create mesmerizing fractal trees and patterns with recursive branching algorithms.
+        </p>
+      </a>
+
+      <a href="pages/pixels.html" class="home__card">
+        <div class="home__card-icon">✨</div>
+        <h2 class="home__card-title">Pixel Animations</h2>
+        <p class="home__card-desc">
+          Watch animated pixel particles that flicker and dance across the canvas.
+        </p>
+      </a>
+    </div>
+  </main>
+
   <canvas id="canvas"></canvas>
-  <div class="controls__container">
-    <form name="controls__form" class="controls__form">
-      <input class="controls__form_input" type="number" name="branches" placeholder="branches">
-      <input class="controls__form_input" type="number" name="spread" placeholder="spread">
-      <input class="controls__form_input" type="number" name="sides" placeholder="sides">
-    </form>
-  </div>
-  <script type="module" src="/src/main.js"></script>
+
+  <script type="module">
+    import { Canvas } from './js/canvas.js';
+    import { rand, hslToString } from './js/utils.js';
+
+    // Animated background particles
+    class Particle {
+      constructor(canvas) {
+        this.canvas = canvas;
+        this.reset();
+      }
+
+      reset() {
+        this.x = rand(0, this.canvas.width);
+        this.y = rand(0, this.canvas.height);
+        this.size = rand(1, 3);
+        this.speedX = rand(-0.5, 0.5);
+        this.speedY = rand(-0.5, 0.5);
+        this.hue = rand(200, 280);
+        this.alpha = rand(0.1, 0.5);
+      }
+
+      update() {
+        this.x += this.speedX;
+        this.y += this.speedY;
+
+        if (this.x < 0 || this.x > this.canvas.width ||
+            this.y < 0 || this.y > this.canvas.height) {
+          this.reset();
+        }
+      }
+
+      draw(ctx) {
+        ctx.beginPath();
+        ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+        ctx.fillStyle = hslToString(this.hue, 80, 60, this.alpha);
+        ctx.fill();
+      }
+    }
+
+    window.addEventListener('load', () => {
+      const canvas = new Canvas('canvas');
+      const particles = [];
+      const particleCount = 50;
+
+      for (let i = 0; i < particleCount; i++) {
+        particles.push(new Particle(canvas));
+      }
+
+      canvas.startAnimation(() => {
+        canvas.context.fillStyle = 'rgba(10, 10, 15, 0.1)';
+        canvas.context.fillRect(0, 0, canvas.width, canvas.height);
+
+        particles.forEach(p => {
+          p.update();
+          p.draw(canvas.context);
+        });
+      });
+
+      window.addEventListener('resize', () => canvas.resize());
+    });
+  </script>
 </body>
 
 </html>
