@@ -4,114 +4,298 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Canvas Drawing App</title>
+  <title>Snowflakes (Legacy) - Canvas Drawing App</title>
   <link rel="stylesheet" href="css/styles.css">
 </head>
 
 <body>
-  <nav class="nav">
-    <div class="nav__container">
-      <a href="index.html" class="nav__logo">
-        <span>Canvas Art</span>
-      </a>
-      <ul class="nav__links">
-        <li><a href="index.html" class="nav__link nav__link--active">Home</a></li>
-        <li><a href="pages/snowflakes.html" class="nav__link">Snowflakes</a></li>
-        <li><a href="pages/fractals.html" class="nav__link">Fractals</a></li>
-        <li><a href="pages/pixels.html" class="nav__link">Pixels</a></li>
-      </ul>
-    </div>
-  </nav>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
 
-  <main class="home">
-    <h1 class="home__title">Canvas Drawing App</h1>
-    <p class="home__subtitle">Explore beautiful patterns and animations</p>
+    body {
+      min-width: 100vw;
+      min-height: 100vh;
+      overflow: hidden;
+    }
 
-    <div class="home__grid">
-      <a href="pages/snowflakes.html" class="home__card">
-        <div class="home__card-icon">❄️</div>
-        <h2 class="home__card-title">Snowflakes</h2>
-        <p class="home__card-desc">
-          Generate beautiful fractal snowflakes with customizable branches, spread, and colors.
-        </p>
-      </a>
+    #canvas {
+      background-color: black;
+      position: absolute;
+      top: 0;
+      left: 0;
+      z-index: 1;
+      min-height: 100vh;
+      /* max-width: 100vw; */
+      /* max-height: 100vh; */
+    }
 
-      <a href="pages/fractals.html" class="home__card">
-        <div class="home__card-icon">🌿</div>
-        <h2 class="home__card-title">Fractals</h2>
-        <p class="home__card-desc">
-          Create mesmerizing fractal trees and patterns with recursive branching algorithms.
-        </p>
-      </a>
+    .controls__container {
+      position: absolute;
+      z-index: 10;
+    }
 
-      <a href="pages/pixels.html" class="home__card">
-        <div class="home__card-icon">✨</div>
-        <h2 class="home__card-title">Pixel Animations</h2>
-        <p class="home__card-desc">
-          Watch animated pixel particles that flicker and dance across the canvas.
-        </p>
-      </a>
-    </div>
-  </main>
+    .controls__form {
+      height: 32px;
+      display: flex;
+      flex-direction: row;
+      justify-content: space-between;
+      /* align-items: center; */
+      gap: 8px;
+    }
 
-  <canvas id="canvas"></canvas>
+    .controls__form_input {
+      min-width: 100px;
+      font-size: medium;
+    }
 
+    .controls__form_button {
+      min-width: 100px;
+    }
+  </style>
+  <div class="controls__container">
+    <form name="controls__form" class="controls__form">
+      <div class="controls__group">
+        <label class="controls__label">Branches</label>
+        <input class="controls__input" type="number" name="branches" placeholder="2" min="1" max="5" value="2">
+      </div>
+      <div class="controls__group">
+        <label class="controls__label">Spread</label>
+        <input class="controls__input" type="number" name="spread" placeholder="0.5" step="0.1" min="0.1" max="1.5"
+          value="0.5">
+      </div>
+      <div class="controls__group">
+        <label class="controls__label">Sides</label>
+        <input class="controls__input" type="number" name="sides" placeholder="5" min="3" max="12" value="5">
+      </div>
+      <div class="controls__group">
+        <label class="controls__label">Scale</label>
+        <input class="controls__input" type="number" name="scale" placeholder="0.7" step="0.1" min="0.3" max="1"
+          value="0.7">
+      </div>
+      <div class="controls__group">
+        <label class="controls__label">Angle</label>
+        <input class="controls__input" type="number" name="angle" placeholder="0" min="0" max="180" value="0">
+      </div>
+      <button class="controls__btn" type="button" id="randomFractal">Random fractal</button>
+      <button class="controls__btn" type="button" id="snowflakes">Snowflakes</button>
+      <button class="controls__btn" type="submit" id="drawBtn">Draw</button>
+      <button class="controls__btn controls__btn--secondary" type="reset">Clear</button>
+    </form>
+  </div>
   <script type="module">
     import { Canvas } from './js/canvas.js';
-    import { rand, hslToString } from './js/utils.js';
+    import { get } from './js/utils.js';
 
-    // Animated background particles
-    class Particle {
-      constructor(canvas) {
-        this.canvas = canvas;
-        this.reset();
+    class Fractal {
+      context = null;
+      params = {};
+
+      constructor(canvasRef, fractalParams) {
+        if (!canvasRef || !(canvasRef instanceof HTMLCanvasElement)) {
+          throw Error('Error with accessing canvas');
+        }
+        this.width = canvasRef.width;
+        this.height = canvasRef.height;
+
+        const ctx = canvasRef.getContext('2d');
+        ctx.lineWidth = get(fractalParams, 'lineWidth', 10);
+        ctx.lineCap = 'round';
+        ctx.shadowColor = get(fractalParams, 'shadowColor', 'rgba(100, 150, 255, 0.5)');
+        ctx.shadowOffsetX = 0;
+        ctx.shadowOffsetY = 0;
+        ctx.shadowBlur = get(fractalParams, 'shadowBlur', 15);
+        this.context = ctx;
+
+        this.params.size = get(fractalParams, 'size', 300);
+        this.params.sides = get(fractalParams, 'sides', 5);
+        this.params.maxLevel = get(fractalParams, 'maxLevel', 2);
+        this.params.scale = get(fractalParams, 'scale', 0.7);
+        this.params.spread = get(fractalParams, 'spread', 0.5);
+        this.params.branches = get(fractalParams, 'branches', 2);
+        this.params.baseHue = get(fractalParams, 'baseHue', 200);
       }
 
-      reset() {
-        this.x = rand(0, this.canvas.width);
-        this.y = rand(0, this.canvas.height);
-        this.size = rand(1, 3);
-        this.speedX = rand(-0.5, 0.5);
-        this.speedY = rand(-0.5, 0.5);
-        this.hue = rand(200, 280);
-        this.alpha = rand(0.1, 0.5);
-      }
+      #drawBranch(level) {
+        // TODO: add max level to params
+        if (level === undefined || level > this.params.maxLevel) {
+          return;
+        }
+        const hueShift = (level / this.params.maxLevel) * 120;
+        this.context.strokeStyle = `hsl(${this.params.baseHue + hueShift}, 100%, 50%)`;
 
-      update() {
-        this.x += this.speedX;
-        this.y += this.speedY;
+        this.context.beginPath();
+        this.context.moveTo(0, 0);
+        this.context.lineTo(this.params.size, 0);
+        this.context.stroke();
 
-        if (this.x < 0 || this.x > this.canvas.width ||
-            this.y < 0 || this.y > this.canvas.height) {
-          this.reset();
+        for (let i = 0; i < this.params.branches; i++) {
+          this.context.save();
+          this.context.translate(this.params.size - (this.params.size / this.params.branches) * i, 0);
+          this.context.rotate(this.params.spread);
+          this.context.scale(this.params.scale, this.params.scale);
+          this.#drawBranch(level + 1);
+          this.context.restore();
+
+          this.context.save();
+          this.context.translate(this.params.size - (this.params.size / this.params.branches) * i, 0);
+          this.context.rotate(-this.params.spread);
+          this.context.scale(this.params.scale, this.params.scale);
+          this.#drawBranch(level + 1);
+          this.context.restore();
         }
       }
 
-      draw(ctx) {
-        ctx.beginPath();
-        ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
-        ctx.fillStyle = hslToString(this.hue, 80, 60, this.alpha);
-        ctx.fill();
+      draw(position, scale, rotate) {
+        this.context.save();
+        this.context.translate(
+          get(position, 'x', this.width / 2),
+          get(position, 'y', this.height / 2)
+        );
+        const scaleValue = scale || this.params.scale || 1;
+        this.context.scale(scaleValue, scaleValue);
+        this.context.rotate(rotate || 0);
+
+        for (let i = 0; i < this.params.branches; i++) {
+          this.context.rotate((Math.PI * 2) / this.params.branches);
+          this.#drawBranch(0);
+        }
+        this.context.restore();
       }
     }
 
-    window.addEventListener('load', () => {
-      const canvas = new Canvas('canvas');
-      const particles = [];
-      const particleCount = 50;
+    const getRandomFractalParams = () => {
+      return {
+        baseHue: Math.floor(Math.random() * 360),
+        branches: Math.floor(Math.random() * 5) + 1,
+        spread: +(Math.random() * 1.4 + 0.1).toFixed(1),
+        sides: Math.floor(Math.random() * 10) + 3,
+        scale: +(Math.random() * 0.7 + 0.3).toFixed(1),
+        angle: Math.floor(Math.random() * 181),
+        randomHue: Math.floor(Math.random() * 360)
+      };
+    };
 
-      for (let i = 0; i < particleCount; i++) {
-        particles.push(new Particle(canvas));
+    window.addEventListener('load', function () {
+      const canvas = new Canvas('canvas');
+      const form = document.querySelector('form[name="controls__form"]');
+      const drawBtn = document.getElementById('drawBtn');
+      const inputs = form.querySelectorAll('input[type="number"]');
+
+      function updateDrawButton() {
+        const allFilled = Array.from(inputs).every(input => input.value !== '');
+        drawBtn.disabled = !allFilled;
       }
 
-      canvas.startAnimation(() => {
-        canvas.context.fillStyle = 'rgba(10, 10, 15, 0.1)';
-        canvas.context.fillRect(0, 0, canvas.width, canvas.height);
+      inputs.forEach(input => input.addEventListener('input', updateDrawButton));
+      updateDrawButton();
 
-        particles.forEach(p => {
-          p.update();
-          p.draw(canvas.context);
-        });
+      let snowflakeTimerId = null;
+
+      const stopSnowflakes = () => {
+        if (snowflakeTimerId !== null) {
+          clearInterval(snowflakeTimerId);
+          snowflakeTimerId = null;
+        }
+      };
+
+      const getSnowflakeParams = () => ({
+        baseHue: Math.floor(Math.random() * 360),
+        branches: Math.floor(Math.random() * 3) + 4,
+        spread: +(0.3 + Math.random() * 0.6).toFixed(2),
+        scale: +(0.4 + Math.random() * 0.2).toFixed(2),
+        size: 6 + Math.floor(Math.random() * 7),
+        maxLevel: 2,
+        lineWidth: 1,
+        shadowBlur: 3,
+        shadowColor: 'rgba(180, 220, 255, 0.6)',
+      });
+
+      const spawnSnowflake = () => {
+        const x = Math.random() * canvas.canvas.width;
+        const y = Math.random() * canvas.canvas.height;
+        const params = getSnowflakeParams();
+        const rotation = Math.random() * Math.PI * 2;
+        new Fractal(canvas.canvas, params).draw({ x, y }, 1, rotation);
+      };
+
+      form.addEventListener('submit', function (e) {
+        e.preventDefault();
+        stopSnowflakes();
+        const branchesInput = form.querySelector('input[name="branches"]');
+        const spreadInput = form.querySelector('input[name="spread"]');
+        const sidesInput = form.querySelector('input[name="sides"]');
+        const angleInput = form.querySelector('input[name="angle"]');
+        const scaleInput = form.querySelector('input[name="scale"]');
+        const branches = branchesInput.value;
+        const spread = spreadInput.value;
+        const sides = sidesInput.value;
+        const position = {
+          x: canvas.canvas.width / 2,
+          y: canvas.canvas.height / 2
+        };
+        const rotation = -angleInput.value * Math.PI / 180;
+        new Fractal(canvas.canvas, {
+          baseHue: 60,
+          branches,
+          spread,
+          sides,
+          scale: scaleInput.value,
+          maxLevel: 3
+        }).draw(position, 1, rotation);
+      });
+
+      form.addEventListener('reset', function (e) {
+        e.preventDefault();
+        stopSnowflakes();
+        const branchesInput = form.querySelector('input[name="branches"]');
+        const spreadInput = form.querySelector('input[name="spread"]');
+        const sidesInput = form.querySelector('input[name="sides"]');
+        const angleInput = form.querySelector('input[name="angle"]');
+        const scaleInput = form.querySelector('input[name="scale"]');
+        branchesInput.value = '';
+        spreadInput.value = '';
+        sidesInput.value = '';
+        angleInput.value = '';
+        scaleInput.value = '';
+        canvas.clear();
+        updateDrawButton();
+      });
+
+      document.getElementById('randomFractal').addEventListener('click', function () {
+        stopSnowflakes();
+        const randomParams = getRandomFractalParams();
+        form.querySelector('input[name="branches"]').value = randomParams.branches;
+        form.querySelector('input[name="spread"]').value = randomParams.spread;
+        form.querySelector('input[name="sides"]').value = randomParams.sides;
+        form.querySelector('input[name="scale"]').value = randomParams.scale;
+        form.querySelector('input[name="angle"]').value = randomParams.angle;
+        updateDrawButton();
+
+        canvas.clear();
+        const position = {
+          x: canvas.canvas.width / 2,
+          y: canvas.canvas.height / 2
+        };
+        const rotation = -randomParams.angle * Math.PI / 180;
+        new Fractal(canvas.canvas, {
+          baseHue: randomParams.baseHue,
+          branches: randomParams.branches,
+          spread: randomParams.spread,
+          sides: randomParams.sides,
+          scale: randomParams.scale,
+          maxLevel: 3
+        }).draw(position, 1, rotation);
+      });
+
+      document.getElementById('snowflakes').addEventListener('click', function () {
+        stopSnowflakes();
+        canvas.clear();
+        spawnSnowflake();
+        snowflakeTimerId = setInterval(spawnSnowflake, 250);
       });
 
       window.addEventListener('resize', () => canvas.resize());
