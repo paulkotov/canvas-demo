@@ -119,7 +119,7 @@
         this.params.baseHue = get(fractalParams, 'baseHue', 200);
       }
 
-      #drawBranch(level) {
+      #drawBranch = (level) => {
         // TODO: add max level to params
         if (level === undefined || level > this.params.maxLevel) {
           return;
@@ -149,7 +149,7 @@
         }
       }
 
-      draw(position, scale, rotate) {
+      draw = (position, scale, rotate) => {
         this.context.save();
         this.context.translate(
           get(position, 'x', this.width / 2),
