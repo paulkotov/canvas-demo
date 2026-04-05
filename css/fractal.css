@@ -1,0 +1,19 @@
+#canvas {
+  background-color: black;
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 1;
+  min-height: 100vh;
+}
+
+.controls__container {
+  position: absolute;
+  z-index: 10;
+}
+
+.controls__form {
+  height: 32px;
+  flex-direction: row;
+  justify-content: space-between;
+}
