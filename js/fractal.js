@@ -3,7 +3,7 @@ import { get } from './utils.js';
 export class Fractal {
   context = null;
   params = {};
-
+// graph drawing class
   constructor(canvasRef, fractalParams) {
     if (!canvasRef || !(canvasRef instanceof HTMLCanvasElement)) {
       throw Error('Error with accessing canvas');
