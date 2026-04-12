@@ -12,6 +12,7 @@ window.addEventListener('load', function () {
   const sidesInput = form.querySelector('input[name="sides"]');
   const angleInput = form.querySelector('input[name="angle"]');
   const scaleInput = form.querySelector('input[name="scale"]');
+  const twistInput = form.querySelector('input[name="twist"]');
 
   function updateDrawButton() {
     const allFilled = Array.from(inputs).every(input => input.value !== '');
@@ -65,6 +66,7 @@ window.addEventListener('load', function () {
       spread: spreadInput.value,
       sides: sidesInput.value,
       scale: scaleInput.value,
+      twist: twistInput.value,
       maxLevel: 3,
     }).draw(centerPosition(), 1, rotation);
   });
@@ -77,6 +79,7 @@ window.addEventListener('load', function () {
     sidesInput.value = '';
     angleInput.value = '';
     scaleInput.value = '';
+    twistInput.value = '0';
     canvas.clear();
     updateDrawButton();
   });
@@ -89,6 +92,7 @@ window.addEventListener('load', function () {
     sidesInput.value = randomParams.sides;
     scaleInput.value = randomParams.scale;
     angleInput.value = randomParams.angle;
+    twistInput.value = randomParams.twist;
     updateDrawButton();
 
     canvas.clear();
@@ -99,6 +103,7 @@ window.addEventListener('load', function () {
       spread: randomParams.spread,
       sides: randomParams.sides,
       scale: randomParams.scale,
+      twist: randomParams.twist,
       maxLevel: 3,
     }).draw(centerPosition(), 1, rotation);
   });
