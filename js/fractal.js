@@ -27,6 +27,7 @@ export class Fractal {
     this.params.spread = get(fractalParams, 'spread', 0.5);
     this.params.branches = get(fractalParams, 'branches', 2);
     this.params.baseHue = get(fractalParams, 'baseHue', 200);
+    this.params.twist = get(fractalParams, 'twist', 0);
   }
 
   #drawBranch = (level) => {
@@ -41,17 +42,24 @@ export class Fractal {
     this.context.lineTo(this.params.size, 0);
     this.context.stroke();
 
+    // twist ratio shifts angle between the two sides while keeping them on
+    // opposite sides: upperAngle stays positive, lowerAngle stays negative
+    const upperAngle = this.params.spread * (1 + this.params.twist);
+    const lowerAngle = this.params.spread * (1 - this.params.twist);
+
     for (let i = 0; i < this.params.branches; i++) {
+      const tx = this.params.size - (this.params.size / this.params.branches) * i;
+
       this.context.save();
-      this.context.translate(this.params.size - (this.params.size / this.params.branches) * i, 0);
-      this.context.rotate(this.params.spread);
+      this.context.translate(tx, 0);
+      this.context.rotate(upperAngle);
       this.context.scale(this.params.scale, this.params.scale);
       this.#drawBranch(level + 1);
       this.context.restore();
 
       this.context.save();
-      this.context.translate(this.params.size - (this.params.size / this.params.branches) * i, 0);
-      this.context.rotate(-this.params.spread);
+      this.context.translate(tx, 0);
+      this.context.rotate(-lowerAngle);
       this.context.scale(this.params.scale, this.params.scale);
       this.#drawBranch(level + 1);
       this.context.restore();
@@ -84,6 +92,7 @@ export const getRandomFractalParams = () => {
     sides: Math.floor(Math.random() * 10) + 3,
     scale: +(Math.random() * 0.7 + 0.3).toFixed(1),
     angle: Math.floor(Math.random() * 181),
-    randomHue: Math.floor(Math.random() * 360)
+    randomHue: Math.floor(Math.random() * 360),
+    twist: +(Math.random() * 1.8 - 0.9).toFixed(2),
   };
 };
