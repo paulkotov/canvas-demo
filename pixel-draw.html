@@ -1,9 +1,27 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pixel Draw - Canvas Demo</title>
+  <link rel="stylesheet" href="css/styles.css">
+</head>
 
 <body>
+  <nav class="nav">
+    <div class="nav__container">
+      <a href="index.html" class="nav__logo">Canvas Demo</a>
+      <ul class="nav__links">
+        <li><a href="fractal.html" class="nav__link">Fractal</a></li>
+        <li><a href="pixel-draw.html" class="nav__link nav__link--active">Pixel Draw</a></li>
+      </ul>
+    </div>
+  </nav>
+
   <canvas id="canvas"></canvas>
-  <script src="pixel-draw.js"></script>
+
+  <script type="module" src="js/pixel-draw-main.js"></script>
 </body>
 
 </html>

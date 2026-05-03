@@ -7,7 +7,14 @@ export default defineConfig({
   },
   build: {
     outDir: 'dist',
-    emptyOutDir: true
+    emptyOutDir: true,
+    rollupOptions: {
+      input: {
+        main: 'index.html',
+        fractal: 'fractal.html',
+        pixelDraw: 'pixel-draw.html',
+      },
+    },
   },
   test: {
     // testFiles: 'src/**/*.test.js',
