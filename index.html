@@ -4,47 +4,31 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Snowflakes (Legacy) - Canvas Drawing App</title>
+  <title>Canvas Demo</title>
   <link rel="stylesheet" href="css/styles.css">
-  <link rel="stylesheet" href="css/fractal.css">
 </head>
 
 <body>
-  <div class="controls__container">
-    <form name="controls__form" class="controls__form">
-      <div class="controls__group">
-        <label class="controls__label">Branches</label>
-        <input class="controls__input" type="number" name="branches" placeholder="2" min="1" max="5" value="2">
-      </div>
-      <div class="controls__group">
-        <label class="controls__label">Spread</label>
-        <input class="controls__input" type="number" name="spread" placeholder="0.5" step="0.1" min="0.1" max="1.5"
-          value="0.5">
-      </div>
-      <div class="controls__group">
-        <label class="controls__label">Sides</label>
-        <input class="controls__input" type="number" name="sides" placeholder="5" min="3" max="12" value="5">
-      </div>
-      <div class="controls__group">
-        <label class="controls__label">Scale</label>
-        <input class="controls__input" type="number" name="scale" placeholder="0.7" step="0.1" min="0.3" max="1"
-          value="0.7">
-      </div>
-      <div class="controls__group">
-        <label class="controls__label">Angle</label>
-        <input class="controls__input" type="number" name="angle" placeholder="0" min="0" max="180" value="0">
-      </div>
-      <div class="controls__group">
-        <label class="controls__label">Twist</label>
-        <input class="controls__input" type="number" name="twist" placeholder="0" step="0.05" min="-0.9" max="0.9" value="0">
-      </div>
-      <button class="controls__btn" type="button" id="randomFractal">Random fractal</button>
-      <button class="controls__btn" type="button" id="snowflakes">Snowflakes</button>
-      <button class="controls__btn" type="submit" id="drawBtn">Draw</button>
-      <button class="controls__btn controls__btn--secondary" type="reset">Clear</button>
-    </form>
-  </div>
-  <script type="module" src="js/main.js"></script>
+  <nav class="nav">
+    <div class="nav__container">
+      <a href="index.html" class="nav__logo">Canvas Demo</a>
+    </div>
+  </nav>
+
+  <main class="home">
+    <h1 class="home__title">Canvas Demo</h1>
+    <p class="home__subtitle">Interactive canvas experiments</p>
+    <div class="home__grid">
+      <a href="fractal.html" class="home__card">
+        <div class="home__card-title">Fractal</div>
+        <div class="home__card-desc">Recursive fractal tree with configurable branches, spread, scale, twist, and rotation. Includes a snowflake mode.</div>
+      </a>
+      <a href="pixel-draw.html" class="home__card">
+        <div class="home__card-title">Pixel Draw</div>
+        <div class="home__card-desc">Animated pixel art shapes that reveal and flicker on mouse hover over each figure.</div>
+      </a>
+    </div>
+  </main>
 </body>
 
 </html>
