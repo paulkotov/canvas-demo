@@ -25,6 +25,52 @@ export const DIAMOND = [
   [null,   null,   '#0ee', null,   null  ],
 ];
 
+export const MUSHROOM = [
+  [null,   '#e22', '#e22', '#e22', '#e22', '#e22', null  ],
+  ['#e22', '#e22', '#e22', '#e22', '#e22', '#e22', '#e22'],
+  ['#e22', '#fff', '#e22', '#e22', '#e22', '#fff', '#e22'],
+  ['#e22', '#e22', '#e22', '#e22', '#e22', '#e22', '#e22'],
+  [null,   '#fda', '#fda', '#fda', '#fda', '#fda', null  ],
+  [null,   null,   '#fda', '#fda', '#fda', null,   null  ],
+];
+
+export const CROWN = [
+  ['#fd0', null,   '#fd0', null,   '#fd0', null,   '#fd0'],
+  ['#fd0', '#fd0', '#fd0', '#fd0', '#fd0', '#fd0', '#fd0'],
+  ['#fd0', '#e90', '#fd0', '#e90', '#fd0', '#e90', '#fd0'],
+  ['#fd0', '#fd0', '#fd0', '#fd0', '#fd0', '#fd0', '#fd0'],
+  ['#fd0', '#fd0', '#fd0', '#fd0', '#fd0', '#fd0', '#fd0'],
+];
+
+export const TREE = [
+  [null,   null,   null,   '#3a5', null,   null,   null  ],
+  [null,   null,   '#3a5', '#3a5', '#3a5', null,   null  ],
+  [null,   '#3a5', '#3a5', '#3a5', '#3a5', '#3a5', null  ],
+  ['#3a5', '#3a5', '#3a5', '#3a5', '#3a5', '#3a5', '#3a5'],
+  [null,   '#3a5', '#3a5', '#3a5', '#3a5', '#3a5', null  ],
+  [null,   null,   null,   '#a63', null,   null,   null  ],
+  [null,   null,   null,   '#a63', null,   null,   null  ],
+  [null,   '#a63', '#a63', '#a63', '#a63', '#a63', null  ],
+];
+
+export const ROCKET = [
+  [null,   '#ccc', null  ],
+  ['#ccc', '#ccc', '#ccc'],
+  ['#ccc', '#08f', '#ccc'],
+  ['#ccc', '#ccc', '#ccc'],
+  ['#c44', '#ccc', '#c44'],
+  ['#c44', '#ccc', '#c44'],
+  [null,   '#f70', null  ],
+];
+
+export const LIGHTNING = [
+  [null,   '#fe0', '#fe0', '#fe0'],
+  [null,   '#fe0', null,   null  ],
+  ['#fe0', '#fe0', '#fe0', null  ],
+  [null,   null,   '#fe0', null  ],
+  [null,   null,   '#fe0', '#fe0'],
+];
+
 export class PixelPicture {
   #pixels;
   #cells;
