@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Fractal - Canvas Demo</title>
+  <link rel="stylesheet" href="css/styles.css">
+  <link rel="stylesheet" href="css/fractal.css">
+</head>
+
+<body>
+  <nav class="nav">
+    <div class="nav__container">
+      <a href="index.html" class="nav__logo">Canvas Demo</a>
+      <ul class="nav__links">
+        <li><a href="fractal.html" class="nav__link nav__link--active">Fractal</a></li>
+        <li><a href="pixel-draw.html" class="nav__link">Pixel Draw</a></li>
+      </ul>
+    </div>
+  </nav>
+
+  <canvas id="canvas"></canvas>
+
+  <div class="controls__container">
+    <form name="controls__form" class="controls__form">
+      <div class="controls__group">
+        <label class="controls__label">Branches</label>
+        <input class="controls__input" type="number" name="branches" placeholder="2" min="1" max="5" value="2">
+      </div>
+      <div class="controls__group">
+        <label class="controls__label">Spread</label>
+        <input class="controls__input" type="number" name="spread" placeholder="0.5" step="0.1" min="0.1" max="1.5"
+          value="0.5">
+      </div>
+      <div class="controls__group">
+        <label class="controls__label">Sides</label>
+        <input class="controls__input" type="number" name="sides" placeholder="5" min="3" max="12" value="5">
+      </div>
+      <div class="controls__group">
+        <label class="controls__label">Scale</label>
+        <input class="controls__input" type="number" name="scale" placeholder="0.7" step="0.1" min="0.3" max="1"
+          value="0.7">
+      </div>
+      <div class="controls__group">
+        <label class="controls__label">Angle</label>
+        <input class="controls__input" type="number" name="angle" placeholder="0" min="0" max="180" value="0">
+      </div>
+      <div class="controls__group">
+        <label class="controls__label">Twist</label>
+        <input class="controls__input" type="number" name="twist" placeholder="0" step="0.05" min="-0.9" max="0.9" value="0">
+      </div>
+      <button class="controls__btn" type="button" id="randomFractal">Random fractal</button>
+      <button class="controls__btn" type="button" id="snowflakes">Snowflakes</button>
+      <button class="controls__btn" type="submit" id="drawBtn">Draw</button>
+      <button class="controls__btn controls__btn--secondary" type="reset">Clear</button>
+    </form>
+  </div>
+
+  <script type="module" src="js/main.js"></script>
+</body>
+
+</html>

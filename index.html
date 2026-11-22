@@ -1,16 +1,12 @@
+<!DOCTYPE html>
 <html lang="en">
+
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Canvas Demo</title>
+  <link rel="stylesheet" href="css/styles.css">
 </head>
-<body>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
 
         #canvas {
             background-color: black;
@@ -364,5 +360,27 @@
         }
 
     </script>
+<body>
+  <nav class="nav">
+    <div class="nav__container">
+      <a href="index.html" class="nav__logo">Canvas Demo</a>
+    </div>
+  </nav>
+
+  <main class="home">
+    <h1 class="home__title">Canvas Demo</h1>
+    <p class="home__subtitle">Interactive canvas experiments</p>
+    <div class="home__grid">
+      <a href="fractal.html" class="home__card">
+        <div class="home__card-title">Fractal</div>
+        <div class="home__card-desc">Recursive fractal tree with configurable branches, spread, scale, twist, and rotation. Includes a snowflake mode.</div>
+      </a>
+      <a href="pixel-draw.html" class="home__card">
+        <div class="home__card-title">Pixel Draw</div>
+        <div class="home__card-desc">Animated pixel art shapes that reveal and flicker on mouse hover over each figure.</div>
+      </a>
+    </div>
+  </main>
 </body>
+
 </html>
